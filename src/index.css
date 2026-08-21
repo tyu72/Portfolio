@@ -27,6 +27,9 @@
 @layer base {
   body {
     margin: 0;
+    /* The page background now lives here rather than on the app wrapper, so the
+       fixed PixelBlast layer behind the content has something to render over. */
+    background: var(--color-bg);
   }
 }
 

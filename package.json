@@ -15,6 +15,7 @@
     "@react-three/rapier": "^2.2.0",
     "framer-motion": "^13.1.1",
     "meshline": "^3.3.1",
+    "postprocessing": "^6.39.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
