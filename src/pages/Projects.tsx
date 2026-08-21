@@ -4,6 +4,9 @@ import TagPill from '../components/TagPill';
 import CardDeck from '../components/CardDeck/CardDeck';
 import { PROJECTS, type ProjectDetail } from '../lib/content';
 
+/** Width of the embed box's border, in px — kept out of the scale maths. */
+const BOX_BORDER = 1;
+
 /**
  * An embed that renders at its own fixed size and is scaled down to fit.
  *
@@ -52,7 +55,11 @@ function ScaledEmbed({
     // the frame by that shrunken figure left the game short of its box, which
     // is what showed up as a dead bar down one side. clientWidth is layout
     // pixels and ignores ancestor transforms.
-    const measure = () => setScale(el.clientWidth / (width + inset * 2));
+    // Less the box's border: it is border-box, so its content area is 2px
+    // narrower than its width. Scaling to the full width made the frame overhang
+    // the right edge by those 2px while sitting flush left — one border looked
+    // thicker than the other.
+    const measure = () => setScale((el.clientWidth - BOX_BORDER * 2) / (width + inset * 2));
     measure();
 
     const observer = new ResizeObserver(measure);
@@ -72,8 +79,13 @@ function ScaledEmbed({
       <div
         className="relative mx-auto max-w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
         style={{
-          width: (width + inset * 2) * scale * contentFraction,
-          height: (height + inset * 2) * scale
+          // Full width when the frame fills it, so there is no fractional
+          // centring for the browser to round unevenly between the two borders.
+          width:
+            contentFraction === 1
+              ? '100%'
+              : (width + inset * 2) * scale * contentFraction + BOX_BORDER * 2,
+          height: (height + inset * 2) * scale + BOX_BORDER * 2
         }}
       >
         {running ? (
