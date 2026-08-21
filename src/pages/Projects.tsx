@@ -1,5 +1,4 @@
 import ScrollReveal from '../components/ScrollReveal';
-import ImageSlot from '../components/ImageSlot';
 import TagPill from '../components/TagPill';
 import { PROJECTS } from '../lib/content';
 
@@ -75,12 +74,35 @@ export default function Projects() {
               </div>
             ) : (
               <div className="border-t border-border p-[clamp(20px,3vw,28px)]">
-                <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {project.demo.slots.map((slot) => (
-                    <ImageSlot key={slot.id} id={slot.id} placeholder={slot.placeholder} className="h-[200px] w-full" />
+                {/* Same two-across layout the placeholders used: the clip in
+                    one cell, the screenshot in the other. */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {project.demo.video && (
+                    <video
+                      controls
+                      // The clip is large, so nothing is fetched until play is
+                      // pressed — the poster is all the page actually loads.
+                      preload="none"
+                      poster={project.demo.video.poster}
+                      className="block h-[200px] w-full rounded-2xl border border-border-soft bg-black object-cover"
+                    >
+                      <source src={project.demo.video.src} type="video/mp4" />
+                      Your browser can&apos;t play this clip.{' '}
+                      <a href={project.demo.video.src} className="text-accent">
+                        Download it instead ↓
+                      </a>
+                    </video>
+                  )}
+                  {project.demo.images.map((image) => (
+                    <img
+                      key={image.src}
+                      src={image.src}
+                      alt={image.alt}
+                      loading="lazy"
+                      className="block h-[200px] w-full rounded-2xl border border-border-soft object-cover"
+                    />
                   ))}
                 </div>
-                <p className="mt-4 font-sans text-[13px] text-ink-softer">{project.demo.note}</p>
               </div>
             )}
           </div>

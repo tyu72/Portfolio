@@ -77,7 +77,7 @@ export const ABOUT_BANNER = {
 
 export type ProjectDemo =
   | { type: 'iframe'; src: string; fallbackHref: string; note: string }
-  | { type: 'images'; slots: { id: string; placeholder: string }[]; note: string };
+  | { type: 'media'; video?: { src: string; poster: string }; images: { src: string; alt: string }[] };
 
 export type ProjectDetail = {
   slug: string;
@@ -116,20 +116,17 @@ export const PROJECTS: ProjectDetail[] = [
       'A slime alchemy game built in Unity with a five-person team, on its way to Steam. My focus was gameplay systems and C# tooling, working alongside teammates on art, audio, and level design.',
     tags: ['Unity', 'C#', 'Game design', 'Team project'],
     links: [{ label: 'View on Steam ↗', href: 'https://store.steampowered.com/app/4703500/Bubble_Mage/' }],
+    // Served from public/ rather than imported: the clip is ~54 MB, and the
+    // page only fetches it if someone presses play.
     demo: {
-      type: 'images',
-      slots: [
-        { id: 'bubblemage-shot-1', placeholder: 'BubbleMage screenshot' },
-        { id: 'bubblemage-shot-2', placeholder: 'BubbleMage screenshot' },
-      ],
-      note: 'Downloadable Steam title — no browser build, so no embedded demo here.',
+      type: 'media',
+      video: { src: '/bubblemage-preview.mp4', poster: '/bubblemage-screenshot.jpg' },
+      images: [{ src: '/bubblemage-screenshot.jpg', alt: 'BubbleMage gameplay screenshot' }],
     },
   },
 ];
 
 export const ABOUT = {
-  headshotId: 'about-headshot',
-  headshotPlaceholder: 'Your photo',
   bio: [
     "I'm a computer science and game design major who likes taking things from a blank file to something people can actually use. That's meant building web apps, writing gameplay systems in Unity, and lately spending more time thinking about why people click what they click than how the code works underneath.",
     "Right now I'm aiming toward product management — I like being close enough to the code to know what's actually hard to build, and close enough to the user to know what's actually worth building.",
