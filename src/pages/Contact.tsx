@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { CONTACT, SOCIAL_LINKS } from '../lib/content';
+import FoldText from '../components/FoldText/FoldText';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -44,10 +45,21 @@ export default function Contact() {
 
   return (
     <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] pb-[100px] pt-[clamp(70px,10vh,110px)]">
-      <h1 className="mb-4 font-sans text-[clamp(34px,5vw,52px)] font-extrabold tracking-[-0.02em] text-ink">
-        {CONTACT.heading}
+      {/* Kept inside an h1 so the page still has a heading in its outline —
+          FoldText renders spans. */}
+      <h1 className="mb-4">
+        <FoldText
+          text={CONTACT.heading}
+          splitBy="char"
+          hinge="top"
+          trigger="mount"
+          color="#f2f4fb"
+          fontSize="clamp(34px, 5vw, 52px)"
+          fontWeight={800}
+          className="font-sans"
+        />
       </h1>
-      <p className="mb-12 font-sans text-[17px] leading-[1.55] text-ink-soft">{CONTACT.body}</p>
+      <p className="mb-12 font-sans text-[17px] leading-[1.55] text-white">{CONTACT.body}</p>
 
       <div className="mb-12 flex flex-wrap gap-4">
         {SOCIAL_LINKS.map((link) => (

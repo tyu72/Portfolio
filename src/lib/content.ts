@@ -14,7 +14,6 @@ export type SocialLink = { label: string; href: string; external: boolean };
 
 export const SOCIAL_LINKS: SocialLink[] = [
   { label: '✉ yutony115@gmail.com', href: 'mailto:yutony115@gmail.com', external: false },
-  { label: 'GitHub ↗', href: 'https://github.com/tyu72', external: true },
   { label: 'LinkedIn ↗', href: 'https://www.linkedin.com/in/yutony03/', external: true },
 ];
 
