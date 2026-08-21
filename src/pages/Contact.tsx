@@ -67,6 +67,7 @@ export default function Contact() {
         <input
           type="text"
           placeholder="Your name"
+          aria-label="Your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -75,6 +76,7 @@ export default function Contact() {
         <input
           type="email"
           placeholder="Your email"
+          aria-label="Your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -82,6 +84,7 @@ export default function Contact() {
         />
         <textarea
           placeholder="What's up?"
+          aria-label="Your message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required

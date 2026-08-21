@@ -1,32 +1,79 @@
-# React + TypeScript + Vite
+# Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Tony Yu's personal portfolio — a four-page site covering work, background, and contact.
 
-Currently, two official plugins are available:
+Built with Vite, React, TypeScript, Tailwind CSS, React Router, and Framer Motion.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Running locally
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The dev server prints a local URL (default http://localhost:5173).
+
+## Scripts
+
+| Command | Does |
+|---------|------|
+| `npm run dev` | Start the dev server with hot reload |
+| `npm run build` | Type-check (`tsc -b`) and build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Run Oxlint |
+
+## Contact form
+
+The contact form posts to [Formspree](https://formspree.io). Create a form there,
+then copy `.env.example` to `.env` and set your form ID:
+
+```
+VITE_FORMSPREE_ID=your_formspree_form_id
+```
+
+Without it the form renders an inline error on submit rather than failing silently.
+
+## Project structure
+
+```
+src/
+  components/   Nav, Footer, and small presentational pieces
+  pages/        One file per route (Home, Projects, About, Contact)
+  lib/
+    content.ts  All site copy, links, and project data — edit here, not in pages
+  index.css     Tailwind entry plus the design tokens (@theme) and keyframes
+```
+
+Copy and project data live in `src/lib/content.ts` as typed constants, so text
+changes don't require touching page components.
+
+Design tokens (colors, fonts) are defined in the `@theme` block in
+`src/index.css`. This project uses Tailwind v4, where tokens live in CSS rather
+than a `tailwind.config.js`.
+
+## Placeholders
+
+These ship as placeholders and are meant to be swapped in:
+
+- Headshot on the About page
+- Two BubbleMage screenshots on the Projects page
+- Resume PDF link on the About page
+- `VITE_FORMSPREE_ID` for the contact form
+
+Images render as labeled placeholder boxes until real assets replace them.
+
+## Component slots
+
+Five interaction points are deliberately isolated into small components so they
+can be swapped for [reactbits.dev](https://reactbits.dev/) equivalents without
+touching page code:
+
+| Component | Role |
+|-----------|------|
+| `HeroIdentityCard` | Interactive hero identity piece |
+| `RoleCycler` | Rotating role text under the hero |
+| `GradientHeading` | Animated gradient name |
+| `TiltCard` | Tilt/spotlight hover on project cards |
+| `ScrollReveal` | Section fade-in on scroll |
+
+Each currently holds a dependency-free fallback implementation.
