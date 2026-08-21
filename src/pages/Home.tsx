@@ -15,23 +15,25 @@ export default function Home() {
       {/* Draggable lanyard. Sits above page content (z-30) so the card covers
           text as it swings, but below the sticky nav (z-50).
 
-          Placement: measured against the rendered nav, the link centres sit at
-          Home 372px / Projects 293px from the content-box right edge.
-          right-[53px] plus half of w-[560px] centres the card at 333px — the
-          midpoint of those two, so it hangs under Home and Projects.
+          The canvas spans the full page width and 900px down so the card is
+          never clipped by its own container — the rope is the only thing that
+          limits how far it swings. Lanyard disables pointer events on the
+          canvas except when the pointer is over the card, so everything
+          underneath stays clickable.
 
-          Height is capped at 560px because the canvas swallows pointer events
-          across its whole box: at 680px it covered the "View all" link and the
-          BubbleMage card below, making them silently unclickable. */}
-      <div className="pointer-events-none absolute right-[53px] top-0 z-30 hidden h-[560px] w-[560px] lg:block">
-        <div className="pointer-events-auto h-full w-full">
+          anchorRightPx hangs the rig 333px from the right edge: the midpoint
+          of the Home (372px) and Projects (293px) nav links, measured on the
+          rendered page. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 hidden h-[900px] lg:block">
+        <div className="pointer-events-none h-full w-full">
           {/* Camera z sets the card's on-screen size: smaller z = bigger card.
-              At z=14 in a 560px-tall canvas the card renders ~255px tall. The
-              rig is anchored at world y=4, above the frustum, so the strap runs
-              off the top of the canvas and reads as hanging from under the nav. */}
+              At z=22 in a 900px-tall canvas the card renders ~260px tall, and
+              the rig's world y=4 anchor sits just above the frustum, so the
+              strap runs off the top and reads as hanging from under the nav. */}
           <Lanyard
-            position={[0, 0, 14]}
+            position={[0, 0, 22]}
             gravity={[0, -40, 0]}
+            anchorRightPx={333}
             frontImage={cardFront}
             backImage={cardBack}
           />

@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, extend, useFrame, type ThreeElement, type ThreeEvent } from '@react-three/fiber';
+import { Canvas, extend, useFrame, useThree, type ThreeElement, type ThreeEvent } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import {
   BallCollider,
@@ -41,14 +41,40 @@ const BLANK_PIXEL =
 // 0.7572 is the card mesh's real maximum V (read from card.glb's TEXCOORD_0);
 // the shipped 0.755/0.757 stopped just short and left a thin strip of the
 // original texture showing along the bottom of each face.
+// Radius in world units treated as "over the card" for pointer hit-testing.
+// The card's collider is 0.8 x 1.125, so this covers it with a little slack.
+const CARD_HIT_RADIUS = 1.35;
+
 const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.7572 };
 const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.7572 };
+
+// Pans the camera sideways so the rig hangs a fixed distance from the canvas's
+// right edge. This lets the canvas span the full page width — giving the card
+// room to swing without clipping — while the card still hangs from a specific
+// spot, and it stays put as the viewport resizes.
+function CameraRig({ anchorRightPx }: { anchorRightPx?: number | null }) {
+  const { camera, size } = useThree();
+
+  useEffect(() => {
+    if (anchorRightPx == null) return;
+    const cam = camera as THREE.PerspectiveCamera;
+    const worldHeight = 2 * Math.tan((cam.fov * Math.PI) / 180 / 2) * cam.position.z;
+    const unitsPerPx = worldHeight / size.height;
+    const targetFromLeft = size.width - anchorRightPx;
+    cam.position.x = -(targetFromLeft - size.width / 2) * unitsPerPx;
+    cam.updateProjectionMatrix();
+  }, [camera, size.width, size.height, anchorRightPx]);
+
+  return null;
+}
 
 interface LanyardProps {
   position?: [number, number, number];
   gravity?: [number, number, number];
   fov?: number;
   transparent?: boolean;
+  /** Distance in px from the canvas's right edge to hang the rig from. */
+  anchorRightPx?: number | null;
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
@@ -61,6 +87,7 @@ export default function Lanyard({
   gravity = [0, -40, 0],
   fov = 20,
   transparent = true,
+  anchorRightPx = null,
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
@@ -85,10 +112,14 @@ export default function Lanyard({
         // photographic card face that reads as a colour filter over the photo.
         // With NoToneMapping the texture renders at its true colours.
         flat
+        // The container must not capture pointer events — the canvas child
+        // re-enables them for itself only while the pointer is over the card.
+        style={{ pointerEvents: 'none' }}
         gl={{ alpha: transparent }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
         <ambientLight intensity={Math.PI} />
+        <CameraRig anchorRightPx={anchorRightPx} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
           <Band
             isMobile={isMobile}
@@ -264,7 +295,49 @@ function Band({
     }
   }, [hovered, dragged]);
 
+  // Where the pointer is, tracked on window rather than on the canvas: the
+  // canvas spends most of its life with pointer-events disabled (below), so it
+  // cannot report this itself.
+  const pointerPx = useRef({ x: -1e4, y: -1e4 });
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      pointerPx.current.x = e.clientX;
+      pointerPx.current.y = e.clientY;
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
+
+  // The canvas spans the page so the card can swing freely, which would
+  // otherwise make everything beneath it unclickable. So enable pointer events
+  // only while the pointer is actually over the card (or mid-drag) and let
+  // every other pixel fall through to the page.
+  const updatePointerPassthrough = (state: { gl: THREE.WebGLRenderer; camera: THREE.Camera }) => {
+    const el = state.gl.domElement;
+    if (dragged) {
+      el.style.pointerEvents = 'auto';
+      return;
+    }
+    if (!card.current) return;
+
+    const rect = el.getBoundingClientRect();
+    const centre = vec.copy(card.current.translation() as THREE.Vector3);
+    const edge = dir.copy(centre).setX(centre.x + CARD_HIT_RADIUS);
+    centre.project(state.camera);
+    edge.project(state.camera);
+
+    const cx = rect.left + (centre.x * 0.5 + 0.5) * rect.width;
+    const cy = rect.top + (-centre.y * 0.5 + 0.5) * rect.height;
+    const radiusPx = Math.abs(edge.x - centre.x) * 0.5 * rect.width;
+
+    const dx = pointerPx.current.x - cx;
+    const dy = pointerPx.current.y - cy;
+    el.style.pointerEvents = dx * dx + dy * dy <= radiusPx * radiusPx ? 'auto' : 'none';
+  };
+
   useFrame((state, delta) => {
+    updatePointerPassthrough(state);
+
     if (dragged && typeof dragged !== 'boolean') {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
@@ -331,25 +404,14 @@ function Band({
             }}
           >
             <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={cardMap}
-                map-anisotropy={16}
-                // Just enough gloss to read as a laminated card. Higher values
-                // lay a bright sheen over the photo, which also reads as a
-                // filter over it.
-                clearcoat={isMobile ? 0 : 0.12}
-                clearcoatRoughness={0.4}
-                roughness={0.9}
-                // Printed card stock, not metal. The shipped value was 0.8,
-                // which left the card reflecting an environment that is four
-                // thin lightformers on black — so every edge and rim face that
-                // missed a lightformer reflected black and read as a dark
-                // outline. At 0 the base colour map drives the surface.
-                metalness={0}
-                // The environment is four bright lightformers on black; letting
-                // much of it onto a photo tints and blows out the highlights.
-                envMapIntensity={0.12}
-              />
+              {/* Unlit on purpose. Any lit material modulates the map by the
+                  scene's lighting — ambient plus environment IBL — so a
+                  photograph on the card never matches the file it came from,
+                  and the dark rims came from the same place. meshBasicMaterial
+                  samples the texture directly, so the card face renders exactly
+                  as imported. Swap back to meshPhysicalMaterial (metalness 0)
+                  if shading on the card is ever worth the colour shift. */}
+              <meshBasicMaterial map={cardMap} map-anisotropy={16} toneMapped={false} />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
