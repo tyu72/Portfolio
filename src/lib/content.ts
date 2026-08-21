@@ -87,6 +87,14 @@ export type ProjectDemo =
        */
       naturalWidth?: number;
       naturalHeight?: number;
+      /**
+       * The embedded page's own body margin, in its pixels. The frame is made
+       * this much bigger and then shifted back by the same amount, so the
+       * margin is cropped off and the canvas fills the box exactly — otherwise
+       * the page overflows its frame, scrollbars appear, and the game's own
+       * centring pushes it off to one side.
+       */
+      embedInset?: number;
     }
   | { type: 'media'; video?: { src: string; poster?: string }; images: { src: string; alt: string }[] };
 
@@ -153,6 +161,8 @@ export const PROJECTS: ProjectDetail[] = [
       note: 'PLAY IT HERE — press play, then click the game to use the keyboard',
       naturalWidth: 800,
       naturalHeight: 600,
+      // This page resets body margin to 0, so nothing needs cropping.
+      embedInset: 0,
     },
   },
   {
@@ -173,6 +183,8 @@ export const PROJECTS: ProjectDetail[] = [
       note: 'PLAY IT HERE — press play, then click the game to use the keyboard',
       naturalWidth: 1500,
       naturalHeight: 1000,
+      // This page sets no margin reset, so it inherits the browser default 8px.
+      embedInset: 8,
     },
   },
 ];

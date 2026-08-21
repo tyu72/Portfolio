@@ -17,12 +17,14 @@ function ScaledEmbed({
   src,
   title,
   width,
-  height
+  height,
+  inset = 0
 }: {
   src: string;
   title: string;
   width: number;
   height: number;
+  inset?: number;
 }) {
   const holder = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -65,13 +67,23 @@ function ScaledEmbed({
             ref={frame}
             src={src}
             title={title}
-            width={width}
-            height={height}
+            // Sized to include the page's own margin on both sides, so its
+            // content fits without the page scrolling.
+            width={width + inset * 2}
+            height={height + inset * 2}
+            scrolling="no"
             // Keyboard focus is what makes it playable: the game only receives
             // key events once the frame itself is focused.
             allow="autoplay; fullscreen; gamepad; keyboard-map"
-            className="absolute left-0 top-0 border-0"
-            style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}
+            className="absolute border-0"
+            style={{
+              // Pulled back by the margin so it lands outside the box, leaving
+              // the canvas itself flush with the edges.
+              left: -inset * scale,
+              top: -inset * scale,
+              transform: `scale(${scale})`,
+              transformOrigin: '0 0'
+            }}
           />
         ) : (
           <button
@@ -153,6 +165,7 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
                 title={`${project.title} — playable`}
                 width={project.demo.naturalWidth}
                 height={project.demo.naturalHeight}
+                inset={project.demo.embedInset}
               />
             ) : (
               <div className="overflow-hidden rounded-2xl border border-border-soft bg-white">
