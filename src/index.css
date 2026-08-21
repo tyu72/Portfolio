@@ -17,12 +17,44 @@
   --color-live: #22C55E;
   --color-game: oklch(50% 0.15 40);
 
+  /* Inverted panels (the resume banner, the About CTA, the contact success
+     state). These were bg-ink with white text, which flips to unreadable in a
+     dark theme — ink becomes the light colour. Naming the panel and its text
+     separately lets each theme choose a pairing that actually contrasts. */
+  --color-panel: oklch(18% 0.015 260);
+  --color-panel-ink: oklch(99% 0 0);
+
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 @source "../index.html";
 @source "./";
+
+/* Dark theme. Tailwind's utilities all resolve through these custom
+   properties, so overriding the values here re-themes every component without
+   touching a single class name. Set data-theme="dark" on <html>. */
+[data-theme='dark'] {
+  --color-bg: oklch(17% 0.014 260);
+  --color-surface: oklch(21% 0.016 260);
+  --color-surface-alt: oklch(25% 0.016 260);
+  --color-ink: oklch(96% 0.005 260);
+  --color-ink-soft: oklch(80% 0.012 260);
+  --color-ink-softer: oklch(66% 0.014 260);
+  --color-border: oklch(30% 0.016 260);
+  --color-border-soft: oklch(38% 0.018 260);
+  --color-pill: oklch(28% 0.018 260);
+
+  /* Lifted so they hold contrast against a dark background. */
+  --color-accent: oklch(74% 0.13 260);
+  --color-accent-deep: oklch(82% 0.12 260);
+  --color-live: oklch(78% 0.17 150);
+  --color-game: oklch(75% 0.14 45);
+
+  /* Inverted panels lift off the page rather than dropping into it. */
+  --color-panel: oklch(28% 0.02 260);
+  --color-panel-ink: oklch(97% 0.005 260);
+}
 
 @layer base {
   body {

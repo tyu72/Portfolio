@@ -8,7 +8,15 @@ type GradientHeadingProps = {
 export default function GradientHeading({ children, className = '' }: GradientHeadingProps) {
   return (
     <h1
-      className={`animate-gradient-shift bg-[linear-gradient(90deg,oklch(18%_0.015_260),#5B8CFF,oklch(18%_0.015_260))] bg-[length:200%_auto] bg-clip-text font-sans font-extrabold leading-[1.02] tracking-[-0.03em] text-transparent ${className}`}
+      // Gradient stops read from the theme tokens rather than literal colours:
+      // the shipped ones were near-black, which disappears against a dark
+      // background.
+      style={{
+        backgroundImage:
+          'linear-gradient(90deg, var(--color-ink), var(--color-accent), var(--color-ink))',
+        backgroundSize: '200% auto'
+      }}
+      className={`animate-gradient-shift bg-clip-text font-sans font-extrabold leading-[1.02] tracking-[-0.03em] text-transparent ${className}`}
     >
       {children}
     </h1>

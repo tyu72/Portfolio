@@ -105,16 +105,16 @@ export default function Home() {
       </ScrollReveal>
 
       <ScrollReveal className="mx-auto max-w-[1140px] px-[clamp(24px,6vw,80px)] pb-[140px]">
-        <div className="flex flex-wrap items-center justify-between gap-8 rounded-3xl bg-ink p-10 sm:p-14">
+        <div className="flex flex-wrap items-center justify-between gap-8 rounded-3xl bg-panel p-10 sm:p-14">
           <div>
-            <h2 className="mb-3 font-sans text-[clamp(24px,2.6vw,30px)] font-extrabold text-white">
+            <h2 className="mb-3 font-sans text-[clamp(24px,2.6vw,30px)] font-extrabold text-panel-ink">
               {ABOUT_BANNER.heading}
             </h2>
-            <p className="max-w-[480px] font-sans text-base text-white/80">{ABOUT_BANNER.body}</p>
+            <p className="max-w-[480px] font-sans text-base text-panel-ink/80">{ABOUT_BANNER.body}</p>
           </div>
           <Link
             to={ABOUT_BANNER.cta.href}
-            className="whitespace-nowrap rounded-full bg-white px-[30px] py-[15px] font-sans text-sm font-bold text-ink no-underline transition-colors hover:bg-accent hover:text-white"
+            className="whitespace-nowrap rounded-full bg-panel-ink px-[30px] py-[15px] font-sans text-sm font-bold text-panel no-underline transition-colors hover:bg-accent hover:text-white"
           >
             {ABOUT_BANNER.cta.label}
           </Link>

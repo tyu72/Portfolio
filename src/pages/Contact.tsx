@@ -33,10 +33,10 @@ export default function Contact() {
   if (status === 'success') {
     return (
       <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(70px,10vh,110px)]">
-        <div className="rounded-[20px] bg-ink p-8 text-center">
+        <div className="rounded-[20px] bg-panel p-8 text-center">
           <div className="mb-3 text-3xl">✓</div>
-          <p className="mb-1.5 font-sans text-[17px] font-bold text-white">{CONTACT.successHeading}</p>
-          <p className="font-sans text-sm text-white/80">{CONTACT.successBody}</p>
+          <p className="mb-1.5 font-sans text-[17px] font-bold text-panel-ink">{CONTACT.successHeading}</p>
+          <p className="font-sans text-sm text-panel-ink/80">{CONTACT.successBody}</p>
         </div>
       </section>
     );
