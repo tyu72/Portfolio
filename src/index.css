@@ -1,8 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-bg: oklch(98% 0.006 260);
+  --color-surface: oklch(99% 0.004 260);
+  --color-surface-alt: oklch(96% 0.006 260);
+  --color-ink: oklch(18% 0.015 260);
+  --color-ink-soft: oklch(40% 0.02 260);
+  --color-ink-softer: oklch(50% 0.015 260);
+  --color-border: oklch(91% 0.01 260);
+  --color-border-soft: oklch(85% 0.01 260);
+  --color-pill: oklch(94% 0.01 260);
+  --color-accent: #5B8CFF;
+  --color-accent-deep: oklch(55% 0.18 260);
+  --color-live: #22C55E;
+  --color-game: oklch(50% 0.15 40);
+
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@source "./index.html" "./src";
 
 @layer base {
   body {
