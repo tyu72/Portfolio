@@ -1,34 +1,47 @@
-import { Link, NavLink as RouterNavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS, CONTACT_CTA, BRAND } from '../lib/content';
+import PillNav from './PillNav/PillNav';
 
 export default function Nav() {
+  const { pathname } = useLocation();
+
+  // Contact was a separate CTA button; as a pill it belongs with the rest.
+  const items = [...NAV_LINKS, CONTACT_CTA].map((link) => ({
+    label: link.label,
+    href: link.href
+  }));
+
   return (
-    <nav className="sticky top-0 z-50 flex flex-wrap items-center justify-between gap-6 border-b border-border bg-bg/90 px-6 py-5 backdrop-blur-md sm:px-10 lg:px-16">
-      <Link to="/" className="font-mono text-lg font-bold tracking-tight text-ink no-underline">
-        {BRAND.name}
-        <span className="text-accent">.</span>
-        {BRAND.tld}
-      </Link>
-      <div className="flex items-center gap-5 sm:gap-8">
-        {NAV_LINKS.map((link) => (
-          <RouterNavLink
-            key={link.href}
-            to={link.href}
-            className={({ isActive }) =>
-              `font-sans text-sm font-semibold no-underline transition-colors ${
-                isActive ? 'text-accent' : 'text-ink-soft hover:text-accent'
-              }`
-            }
-          >
-            {link.label}
-          </RouterNavLink>
-        ))}
-        <Link
-          to={CONTACT_CTA.href}
-          className="rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-bold text-white no-underline transition-colors hover:bg-accent-deep"
-        >
-          {CONTACT_CTA.label}
+    <nav className="sticky top-0 z-50 border-b border-border bg-bg/90 px-6 py-4 backdrop-blur-md sm:px-10 lg:px-16">
+      <div className="flex items-center justify-between gap-6">
+        <Link to="/" className="font-mono text-lg font-bold tracking-tight text-ink no-underline">
+          {BRAND.name}
+          <span className="text-accent">.</span>
+          {BRAND.tld}
         </Link>
+
+        {/* Absolutely centred from md up, rather than sitting in a grid or flex
+            track. PillNav's load animation grows the pill row from width 0 to
+            width auto, and inside an auto-sized track "auto" measures back to
+            the 0 it was just set to — so the pills would stay collapsed and
+            invisible. Out of flow, nothing constrains that measurement.
+            Below md it stays in the row, where it renders its hamburger. */}
+        <div className="md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
+          <PillNav
+            items={items}
+            activeHref={pathname}
+            initialLoadAnimation
+            // Track and pills both read the page background token, so the nav
+            // sits flat against the header. Base also drives the circle that
+            // fills a pill on hover — black on black, so that read as nothing
+            // and the hover state is carried by the label turning purple
+            // instead, matching the background pixels.
+            baseColor="var(--color-bg)"
+            pillColor="var(--color-bg)"
+            pillTextColor="#f2f4fb"
+            hoveredPillTextColor="#6f74e8"
+          />
+        </div>
       </div>
     </nav>
   );
