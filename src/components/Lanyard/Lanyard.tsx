@@ -80,6 +80,11 @@ export default function Lanyard({
       <Canvas
         camera={{ position, fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
+        // `flat` disables tone mapping. R3F defaults to ACES Filmic, a
+        // cinematic curve that desaturates and rolls off highlights — on a
+        // photographic card face that reads as a colour filter over the photo.
+        // With NoToneMapping the texture renders at its true colours.
+        flat
         gl={{ alpha: transparent }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
@@ -329,16 +334,21 @@ function Band({
               <meshPhysicalMaterial
                 map={cardMap}
                 map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 0.6}
-                clearcoatRoughness={0.25}
-                roughness={0.85}
+                // Just enough gloss to read as a laminated card. Higher values
+                // lay a bright sheen over the photo, which also reads as a
+                // filter over it.
+                clearcoat={isMobile ? 0 : 0.12}
+                clearcoatRoughness={0.4}
+                roughness={0.9}
                 // Printed card stock, not metal. The shipped value was 0.8,
                 // which left the card reflecting an environment that is four
                 // thin lightformers on black — so every edge and rim face that
                 // missed a lightformer reflected black and read as a dark
                 // outline. At 0 the base colour map drives the surface.
                 metalness={0}
-                envMapIntensity={0.35}
+                // The environment is four bright lightformers on black; letting
+                // much of it onto a photo tints and blows out the highlights.
+                envMapIntensity={0.12}
               />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
