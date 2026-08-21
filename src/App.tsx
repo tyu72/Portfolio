@@ -6,11 +6,8 @@ import Home from './pages/Home';
 import Projects from './pages/Projects';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import { useTheme } from './lib/theme';
 
 export default function App() {
-  const { theme, toggleTheme } = useTheme();
-
   return (
     <div className="relative min-h-screen">
       {/* Animated background. Fixed to the viewport and pinned behind the page
@@ -21,9 +18,9 @@ export default function App() {
           so the ripple-on-move effect still works over empty areas. */}
       <div className="fixed inset-0 z-0" aria-hidden>
         <PixelBlast
-          // The light theme's deep indigo all but disappears on a dark page,
-          // so the dark theme gets a lifted version of the same hue.
-          color={theme === 'dark' ? '#6f74e8' : '#2b2d8f'}
+          // Kept in step with --color-pixel, which the cards' spotlight sheen
+          // also uses so the two read as one accent.
+          color="#6f74e8"
           variant="square"
           pixelSize={3}
           patternScale={2}
@@ -35,10 +32,10 @@ export default function App() {
       </div>
 
       <div className="relative z-10">
-        <Nav theme={theme} onToggleTheme={toggleTheme} />
+        <Nav />
         <main>
           <Routes>
-            <Route path="/" element={<Home theme={theme} />} />
+            <Route path="/" element={<Home />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />

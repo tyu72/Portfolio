@@ -8,16 +8,10 @@ import SpotlightCard from '../components/SpotlightCard/SpotlightCard';
 import cardFront from '../components/Lanyard/card-front.jpg';
 import cardBack from '../components/Lanyard/card-back.png';
 import strapTy from '../components/Lanyard/strap-ty.png';
-import strapTyDark from '../components/Lanyard/strap-ty-dark.png';
-import type { Theme } from '../lib/theme';
 import TagPill from '../components/TagPill';
 import { HERO, FEATURED_PROJECTS } from '../lib/content';
 
-export default function Home({ theme = 'light' }: { theme?: Theme }) {
-  // The strap inverts with the theme: a near-black strap is invisible against
-  // the dark theme's grey, and a light one is invisible on the light page.
-  const strap = theme === 'dark' ? strapTyDark : strapTy;
-
+export default function Home() {
   return (
     <div className="relative">
       {/* Draggable lanyard. Sits above page content (z-30) so the card covers
@@ -50,7 +44,7 @@ export default function Home({ theme = 'light' }: { theme?: Theme }) {
             cardHeightPx={255}
             anchorRightPx={333}
             ropeSegmentLength={0.77}
-            lanyardImage={strap}
+            lanyardImage={strapTy}
             strapTileLength={0.8}
             frontImage={cardFront}
             backImage={cardBack}
@@ -64,7 +58,7 @@ export default function Home({ theme = 'light' }: { theme?: Theme }) {
             pattern is still visible without competing with the copy. */}
         <SpotlightCard
           className="z-10 self-start rounded-3xl border border-border bg-surface/85 p-[clamp(24px,4vw,44px)] backdrop-blur-md"
-          spotlightColor="rgba(95, 150, 157, 0.45)"
+          spotlightColor="rgba(111, 116, 232, 0.45)"
         >
           <RoleCycler />
           <GradientHeading className="mt-5 text-[clamp(42px,7.5vw,88px)]">{HERO.name}</GradientHeading>
@@ -86,7 +80,7 @@ export default function Home({ theme = 'light' }: { theme?: Theme }) {
             <TiltCard key={project.slug} href={project.href} className="h-full">
               <SpotlightCard
                 className="h-full rounded-[20px] border border-border bg-surface p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-                spotlightColor="rgba(95, 150, 157, 0.45)"
+                spotlightColor="rgba(111, 116, 232, 0.45)"
               >
                 <div
                   className={`mb-3.5 font-mono text-xs font-semibold tracking-[0.05em] ${project.status.accentClass}`}

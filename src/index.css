@@ -2,27 +2,35 @@
 
 @import "tailwindcss" source(none);
 
+/* The site is dark only — this is the palette, not an override of a light one.
+   Every Tailwind colour utility resolves through these custom properties, so
+   the whole site re-themes from here without touching a class name. */
 @theme {
-  --color-bg: oklch(98% 0.006 260);
-  --color-surface: oklch(99% 0.004 260);
-  --color-surface-alt: oklch(96% 0.006 260);
-  --color-ink: oklch(18% 0.015 260);
-  --color-ink-soft: oklch(40% 0.02 260);
-  --color-ink-softer: oklch(50% 0.015 260);
-  --color-border: oklch(91% 0.01 260);
-  --color-border-soft: oklch(85% 0.01 260);
-  --color-pill: oklch(94% 0.01 260);
-  --color-accent: #5B8CFF;
-  --color-accent-deep: oklch(55% 0.18 260);
-  --color-live: #22C55E;
-  --color-game: oklch(50% 0.15 40);
+  --color-bg: oklch(17% 0.014 260);
+  --color-surface: oklch(21% 0.016 260);
+  --color-surface-alt: oklch(25% 0.016 260);
+  --color-ink: oklch(96% 0.005 260);
+  --color-ink-soft: oklch(80% 0.012 260);
+  --color-ink-softer: oklch(66% 0.014 260);
+  --color-border: oklch(30% 0.016 260);
+  --color-border-soft: oklch(38% 0.018 260);
+  --color-pill: oklch(28% 0.018 260);
 
-  /* Inverted panels (the resume banner, the About CTA, the contact success
-     state). These were bg-ink with white text, which flips to unreadable in a
-     dark theme — ink becomes the light colour. Naming the panel and its text
-     separately lets each theme choose a pairing that actually contrasts. */
-  --color-panel: oklch(18% 0.015 260);
-  --color-panel-ink: oklch(99% 0 0);
+  /* Lifted so they hold contrast against the dark page. */
+  --color-accent: oklch(74% 0.13 260);
+  --color-accent-deep: oklch(82% 0.12 260);
+  --color-live: oklch(78% 0.17 150);
+  --color-game: oklch(75% 0.14 45);
+
+  /* Inverted panels — the resume banner and the contact success state. Paired
+     so the panel and its text are chosen together rather than assuming the
+     page's ink will contrast with them. */
+  --color-panel: oklch(28% 0.02 260);
+  --color-panel-ink: oklch(97% 0.005 260);
+
+  /* The background shader's pixel colour, shared with the spotlight sheen on
+     the cards so the two read as the same accent. */
+  --color-pixel: #6f74e8;
 
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -31,35 +39,13 @@
 @source "../index.html";
 @source "./";
 
-/* Dark theme. Tailwind's utilities all resolve through these custom
-   properties, so overriding the values here re-themes every component without
-   touching a single class name. Set data-theme="dark" on <html>. */
-[data-theme='dark'] {
-  /* A mid dark grey rather than near-black: the lanyard's strap is almost
-     black, and against a near-black page it disappeared. */
-  --color-bg: oklch(29% 0.011 260);
-  --color-surface: oklch(34% 0.012 260);
-  --color-surface-alt: oklch(38% 0.012 260);
-  --color-ink: oklch(97% 0.005 260);
-  --color-ink-soft: oklch(86% 0.012 260);
-  --color-ink-softer: oklch(75% 0.014 260);
-  --color-border: oklch(44% 0.016 260);
-  --color-border-soft: oklch(52% 0.018 260);
-  --color-pill: oklch(40% 0.018 260);
-
-  /* Lifted so they hold contrast against the grey. */
-  --color-accent: oklch(80% 0.12 260);
-  --color-accent-deep: oklch(88% 0.1 260);
-  --color-live: oklch(83% 0.17 150);
-  --color-game: oklch(80% 0.13 45);
-
-  /* Panels drop below the page rather than lifting off it, now that the page
-     itself is mid-grey. */
-  --color-panel: oklch(20% 0.016 260);
-  --color-panel-ink: oklch(97% 0.005 260);
-}
-
 @layer base {
+  :root {
+    /* Dark-only site: tells the browser to render native UI — form controls,
+       scrollbars, the canvas behind the page — in its dark variant. */
+    color-scheme: dark;
+  }
+
   body {
     margin: 0;
     /* The page background now lives here rather than on the app wrapper, so the

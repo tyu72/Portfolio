@@ -102,30 +102,25 @@ console.log(`card-back.png   ${FACE_W}x${BACK_H}  (${LOGOS.join(', ')})`);
 const STRAP_W = 512;
 const STRAP_H = 256;
 
-// Two variants. A near-black strap reads well on the light page but vanishes
-// against the dark theme's grey — measured at 1.35:1 — so the dark theme gets
-// an inverted strap instead of the page being lightened until black shows up.
-const straps = [
-  { file: 'strap-ty.png', bg: '#101014', fg: '#ffffff' },
-  { file: 'strap-ty-dark.png', bg: '#e7e9f2', fg: '#15161c' }
-];
+// Light strap on a dark page. A near-black strap measured 1.35:1 against the
+// background and was effectively invisible; inverting it reads at 11.6:1.
+const STRAP_BG = '#e7e9f2';
+const STRAP_FG = '#15161c';
 
-for (const { file, bg, fg } of straps) {
-  await sharp(
-    Buffer.from(
-      `<svg width="${STRAP_W}" height="${STRAP_H}" xmlns="http://www.w3.org/2000/svg">
-         <rect width="${STRAP_W}" height="${STRAP_H}" fill="${bg}"/>
-         <text x="${STRAP_W / 2}" y="${STRAP_H / 2}" text-anchor="middle" dominant-baseline="central"
-               font-family="Verdana, DejaVu Sans, sans-serif" font-size="110" font-weight="bold"
-               letter-spacing="10" fill="${fg}">TY</text>
-       </svg>`
-    )
+await sharp(
+  Buffer.from(
+    `<svg width="${STRAP_W}" height="${STRAP_H}" xmlns="http://www.w3.org/2000/svg">
+       <rect width="${STRAP_W}" height="${STRAP_H}" fill="${STRAP_BG}"/>
+       <text x="${STRAP_W / 2}" y="${STRAP_H / 2}" text-anchor="middle" dominant-baseline="central"
+             font-family="Verdana, DejaVu Sans, sans-serif" font-size="110" font-weight="bold"
+             letter-spacing="10" fill="${STRAP_FG}">TY</text>
+     </svg>`
   )
-    .png()
-    .toFile(p(new URL(file, OUT)));
+)
+  .png()
+  .toFile(p(new URL('strap-ty.png', OUT)));
 
-  console.log(`${file.padEnd(18)} ${STRAP_W}x${STRAP_H}`);
-}
+console.log(`strap-ty.png    ${STRAP_W}x${STRAP_H}`);
 
 // ---------- about page headshot ----------
 const aboutOut = p(new URL('about-headshot.jpg', SRC));
