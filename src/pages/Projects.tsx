@@ -25,7 +25,13 @@ function ScaledEmbed({
   height: number;
 }) {
   const holder = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLIFrameElement>(null);
   const [scale, setScale] = useState(1);
+  // Click to start. These games begin their menu music as soon as they load, so
+  // auto-mounting the frame meant audio started on its own and kept going while
+  // you read the rest of the page. Stopping unmounts the frame, which is what
+  // actually silences it — there is no way to mute across origins.
+  const [running, setRunning] = useState(false);
 
   useLayoutEffect(() => {
     const el = holder.current;
@@ -48,23 +54,50 @@ function ScaledEmbed({
   }, [width]);
 
   return (
-    <div
-      ref={holder}
-      className="relative w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
-      style={{ height: height * scale }}
-    >
-      <iframe
-        src={src}
-        title={title}
-        width={width}
-        height={height}
-        loading="lazy"
-        // Keyboard focus is what makes it playable: the game only receives key
-        // events once the frame itself is focused, hence the hint in the label.
-        allow="autoplay; fullscreen; gamepad; keyboard-map"
-        className="absolute left-0 top-0 border-0"
-        style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}
-      />
+    <div>
+      <div
+        ref={holder}
+        className="relative w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
+        style={{ height: height * scale }}
+      >
+        {running ? (
+          <iframe
+            ref={frame}
+            src={src}
+            title={title}
+            width={width}
+            height={height}
+            // Keyboard focus is what makes it playable: the game only receives
+            // key events once the frame itself is focused.
+            allow="autoplay; fullscreen; gamepad; keyboard-map"
+            className="absolute left-0 top-0 border-0"
+            style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setRunning(true)}
+            className="absolute inset-0 grid place-items-center gap-2 text-center"
+          >
+            <span>
+              <span className="block font-sans text-lg font-extrabold text-white">▶ Play {title}</span>
+              <span className="mt-1 block font-mono text-xs text-white/70">
+                loads the game — it has sound
+              </span>
+            </span>
+          </button>
+        )}
+      </div>
+
+      {running && (
+        <button
+          type="button"
+          onClick={() => setRunning(false)}
+          className="mt-3 rounded-full border border-border-soft px-4 py-2 font-sans text-sm font-bold text-ink-soft transition-colors hover:border-accent hover:text-accent"
+        >
+          ■ Stop game
+        </button>
+      )}
     </div>
   );
 }
