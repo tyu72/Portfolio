@@ -3,14 +3,24 @@ import ScrollReveal from '../components/ScrollReveal';
 import TiltCard from '../components/TiltCard';
 import RoleCycler from '../components/RoleCycler';
 import GradientHeading from '../components/GradientHeading';
-import HeroIdentityCard from '../components/HeroIdentityCard';
+import Lanyard from '../components/Lanyard/Lanyard';
 import TagPill from '../components/TagPill';
 import { HERO, FEATURED_PROJECTS, ABOUT_BANNER } from '../lib/content';
 
 export default function Home() {
   return (
-    <div className="overflow-hidden">
-      <section className="relative mx-auto grid max-w-[1140px] gap-10 px-[clamp(24px,6vw,80px)] pb-[clamp(70px,10vh,130px)] pt-[clamp(90px,15vh,170px)] lg:grid-cols-[1fr_220px]">
+    <div className="relative">
+      {/* Draggable lanyard. Sits above page content (z-30) so the card covers
+          text as it swings, but below the sticky nav (z-50). */}
+      <div className="pointer-events-none absolute right-0 top-0 z-30 hidden h-[620px] w-[520px] lg:block">
+        <div className="pointer-events-auto h-full w-full">
+          {/* Lower the camera's z to make the card appear larger; the rig is
+              anchored at world y=4, so going much below ~24 crops the strap. */}
+          <Lanyard position={[0, 0, 26]} gravity={[0, -40, 0]} />
+        </div>
+      </div>
+
+      <section className="relative mx-auto grid max-w-[1140px] gap-10 overflow-hidden px-[clamp(24px,6vw,80px)] pb-[clamp(70px,10vh,130px)] pt-[clamp(90px,15vh,170px)] lg:grid-cols-[1fr_360px]">
         <div
           aria-hidden
           className="animate-float-blob pointer-events-none absolute -right-10 -top-16 z-0 h-[340px] w-[340px] rounded-full"
@@ -38,9 +48,6 @@ export default function Home() {
               {HERO.secondaryCta.label}
             </Link>
           </div>
-        </div>
-        <div className="relative z-10">
-          <HeroIdentityCard />
         </div>
       </section>
 
