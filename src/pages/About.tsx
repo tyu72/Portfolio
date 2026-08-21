@@ -1,5 +1,6 @@
 import ScrollReveal from '../components/ScrollReveal';
-import DepthText from '../components/DepthText/DepthText';
+import FoldText from '../components/FoldText/FoldText';
+import SpotlightCard from '../components/SpotlightCard/SpotlightCard';
 import { ABOUT, SKILL_GROUPS } from '../lib/content';
 import headshot from '../images/about-headshot.jpg';
 
@@ -16,14 +17,16 @@ export default function About() {
         />
         <div>
           {/* Kept inside an h1 so the page still has a heading in the document
-              outline — DepthText renders spans. Its depth colour is the same
-              purple as the background pixels and the cards' spotlight. */}
+              outline — FoldText renders spans. */}
           <h1 className="mb-5">
-            <DepthText
+            <FoldText
               text="About me"
-              faceColor="#f2f4fb"
-              depthColor="#6f74e8"
+              splitBy="char"
+              hinge="top"
+              trigger="mount"
+              color="#f2f4fb"
               fontSize="clamp(38px, 5vw, 58px)"
+              fontWeight={800}
               className="font-sans"
             />
           </h1>
@@ -42,7 +45,11 @@ export default function About() {
         <h2 className="mb-6 font-sans text-[clamp(24px,2.6vw,30px)] font-extrabold text-ink">Skills &amp; tools</h2>
         <div className="grid gap-6 sm:grid-cols-2">
           {SKILL_GROUPS.map((group) => (
-            <div key={group.label} className="rounded-2xl border border-border bg-surface p-7">
+            <SpotlightCard
+              key={group.label}
+              className="h-full rounded-2xl border border-border bg-surface p-7"
+              spotlightColor="rgba(111, 116, 232, 0.45)"
+            >
               <div className={`mb-4 font-mono text-xs font-semibold tracking-[0.05em] ${group.accentClass}`}>
                 {group.label}
               </div>
@@ -56,7 +63,7 @@ export default function About() {
                   </span>
                 ))}
               </div>
-            </div>
+            </SpotlightCard>
           ))}
         </div>
       </ScrollReveal>
