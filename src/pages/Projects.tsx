@@ -1,4 +1,5 @@
 import ScrollReveal from '../components/ScrollReveal';
+import FoldText from '../components/FoldText/FoldText';
 import TagPill from '../components/TagPill';
 import { PROJECTS } from '../lib/content';
 
@@ -6,11 +7,22 @@ export default function Projects() {
   return (
     <div>
       <section className="mx-auto max-w-[1100px] px-[clamp(24px,6vw,80px)] pb-10 pt-[clamp(70px,10vh,110px)]">
-        <h1 className="mb-4 font-sans text-[clamp(36px,5vw,56px)] font-extrabold tracking-[-0.02em] text-ink">
-          Projects
+        {/* Kept inside an h1 so the page still has a heading in its outline —
+            FoldText renders spans. */}
+        <h1 className="mb-4">
+          <FoldText
+            text="Projects"
+            splitBy="char"
+            hinge="top"
+            trigger="mount"
+            color="#f2f4fb"
+            fontSize="clamp(36px, 5vw, 56px)"
+            fontWeight={800}
+            className="font-sans"
+          />
         </h1>
-        <p className="max-w-[560px] font-sans text-[17px] leading-[1.55] text-ink-soft">
-          Two things I've shipped — one you can log into right now, one you can wishlist.
+        <p className="max-w-[560px] font-sans text-[17px] leading-[1.55] text-white">
+          Cool things I've made
         </p>
       </section>
 
