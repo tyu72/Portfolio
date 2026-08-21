@@ -4,6 +4,7 @@ import TiltCard from '../components/TiltCard';
 import RoleCycler from '../components/RoleCycler';
 import GradientHeading from '../components/GradientHeading';
 import Lanyard from '../components/Lanyard/Lanyard';
+import SpotlightCard from '../components/SpotlightCard/SpotlightCard';
 import cardFront from '../components/Lanyard/card-front.jpg';
 import cardBack from '../components/Lanyard/card-back.png';
 import strapTy from '../components/Lanyard/strap-ty.png';
@@ -35,8 +36,11 @@ export default function Home() {
               255px per 2.25 units the canvas shows 113.3px per unit from a top
               edge of y=3.971. At 0.77 the card bottom lands ~550px down the
               canvas, about 24px above the link at 574px. */}
+          {/* Gravity sets how fast the card falls in and how heavy it feels to
+              drag. Lowered from -40 to slow the entrance; the rope holds the
+              same resting position either way. */}
           <Lanyard
-            gravity={[0, -40, 0]}
+            gravity={[0, -14, 0]}
             cardHeightPx={255}
             anchorRightPx={333}
             ropeSegmentLength={0.77}
@@ -56,27 +60,19 @@ export default function Home() {
             background: 'radial-gradient(circle at 30% 30%, oklch(85% 0.08 260 / .5), transparent 70%)',
           }}
         />
-        <div className="relative z-10">
+        {/* The intro sits on a card so the animated background reads behind it
+            rather than through the text. Translucent plus a blur, so the
+            pattern is still visible without competing with the copy. */}
+        <SpotlightCard
+          className="z-10 self-start rounded-3xl border border-border bg-surface/85 p-[clamp(24px,4vw,44px)] backdrop-blur-md"
+          spotlightColor="rgba(95, 150, 157, 0.45)"
+        >
           <RoleCycler />
           <GradientHeading className="mt-5 text-[clamp(42px,7.5vw,88px)]">{HERO.name}</GradientHeading>
-          <p className="mb-10 max-w-[600px] font-sans text-[clamp(18px,2.1vw,23px)] leading-[1.55] text-ink-soft">
+          <p className="max-w-[600px] font-sans text-[clamp(18px,2.1vw,23px)] leading-[1.55] text-ink-soft">
             {HERO.tagline}
           </p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to={HERO.primaryCta.href}
-              className="rounded-full bg-accent px-[30px] py-[15px] font-sans text-sm font-bold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-accent-deep"
-            >
-              {HERO.primaryCta.label}
-            </Link>
-            <Link
-              to={HERO.secondaryCta.href}
-              className="rounded-full border-[1.5px] border-border-soft px-[30px] py-[15px] font-sans text-sm font-bold text-ink no-underline transition-colors hover:border-accent hover:text-accent"
-            >
-              {HERO.secondaryCta.label}
-            </Link>
-          </div>
-        </div>
+        </SpotlightCard>
       </section>
 
       <ScrollReveal className="mx-auto max-w-[1140px] px-[clamp(24px,6vw,80px)] pb-[130px]">
