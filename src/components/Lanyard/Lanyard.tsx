@@ -101,6 +101,8 @@ interface LanyardProps {
   cardHeightPx?: number | null;
   /** Length of each of the strap's three segments, in world units. */
   ropeSegmentLength?: number;
+  /** World length of one repeat of the strap print. Larger = fewer, longer tiles. */
+  strapTileLength?: number;
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
@@ -116,6 +118,7 @@ export default function Lanyard({
   anchorRightPx = null,
   cardHeightPx = null,
   ropeSegmentLength = 1,
+  strapTileLength = 0.8,
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
@@ -157,6 +160,7 @@ export default function Lanyard({
             lanyardImage={lanyardImage}
             lanyardWidth={lanyardWidth}
             ropeSegmentLength={ropeSegmentLength}
+            strapTileLength={strapTileLength}
           />
         </Physics>
         <Environment blur={0.75}>
@@ -204,6 +208,7 @@ interface BandProps {
   lanyardImage?: string | null;
   lanyardWidth?: number;
   ropeSegmentLength?: number;
+  strapTileLength?: number;
 }
 
 type LanyardRigidBody = RapierRigidBody & {
@@ -219,7 +224,8 @@ function Band({
   imageFit = 'cover',
   lanyardImage = null,
   lanyardWidth = 1,
-  ropeSegmentLength = 1
+  ropeSegmentLength = 1,
+  strapTileLength = 0.8
 }: BandProps) {
   const band = useRef<THREE.Mesh<InstanceType<typeof MeshLineGeometry>, InstanceType<typeof MeshLineMaterial>>>(null!);
   const fixed = useRef<RapierRigidBody>(null!);
@@ -394,7 +400,17 @@ function Band({
       curve.points[1].copy(getLerped(j2.current));
       curve.points[2].copy(getLerped(j1.current));
       curve.points[3].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
+      const points = curve.getPoints(isMobile ? 16 : 32);
+      band.current.geometry.setPoints(points);
+
+      // Tile the strap print by its actual length rather than a fixed count.
+      // meshline maps u across 0..1 of the whole line, so a constant repeat
+      // squeezes the print when the strap hangs short and spreads it as the
+      // strap is pulled — which is why it only looked right while stretched.
+      let strapLength = 0;
+      for (let i = 1; i < points.length; i++) strapLength += points[i].distanceTo(points[i - 1]);
+      const bandMaterial = band.current.material as InstanceType<typeof MeshLineMaterial>;
+      bandMaterial.repeat.set(-strapLength / strapTileLength, 1);
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);

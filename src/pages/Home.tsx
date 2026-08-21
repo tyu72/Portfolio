@@ -6,6 +6,7 @@ import GradientHeading from '../components/GradientHeading';
 import Lanyard from '../components/Lanyard/Lanyard';
 import cardFront from '../components/Lanyard/card-front.jpg';
 import cardBack from '../components/Lanyard/card-back.png';
+import strapTy from '../components/Lanyard/strap-ty.png';
 import TagPill from '../components/TagPill';
 import { HERO, FEATURED_PROJECTS, ABOUT_BANNER } from '../lib/content';
 
@@ -39,6 +40,8 @@ export default function Home() {
             cardHeightPx={255}
             anchorRightPx={333}
             ropeSegmentLength={0.77}
+            lanyardImage={strapTy}
+            strapTileLength={0.8}
             frontImage={cardFront}
             backImage={cardBack}
           />

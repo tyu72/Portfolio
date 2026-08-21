@@ -95,6 +95,28 @@ await sharp({
 
 console.log(`card-back.png   ${FACE_W}x${BACK_H}  (${LOGOS.join(', ')})`);
 
+// ---------- lanyard strap ----------
+// One tile of the repeating strap print. The tile is 2:1, and the component
+// repeats it along the strap at a fixed world length so the print keeps its
+// proportions whether the strap hangs at rest or is pulled taut.
+const STRAP_W = 512;
+const STRAP_H = 256;
+
+await sharp(
+  Buffer.from(
+    `<svg width="${STRAP_W}" height="${STRAP_H}" xmlns="http://www.w3.org/2000/svg">
+       <rect width="${STRAP_W}" height="${STRAP_H}" fill="#101014"/>
+       <text x="${STRAP_W / 2}" y="${STRAP_H / 2}" text-anchor="middle" dominant-baseline="central"
+             font-family="Verdana, DejaVu Sans, sans-serif" font-size="110" font-weight="bold"
+             letter-spacing="10" fill="#ffffff">TY</text>
+     </svg>`
+  )
+)
+  .png()
+  .toFile(p(new URL('strap-ty.png', OUT)));
+
+console.log(`strap-ty.png    ${STRAP_W}x${STRAP_H}`);
+
 // ---------- about page headshot ----------
 const aboutOut = p(new URL('about-headshot.jpg', SRC));
 const meta = await sharp(p(new URL('about me image.jpg', SRC))).metadata();
