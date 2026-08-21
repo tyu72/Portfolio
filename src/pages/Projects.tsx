@@ -167,7 +167,10 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
                 contentFraction={project.demo.embedContentFraction}
               />
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-border-soft bg-white">
+              // Dark backing, not white: the embedded app is dark, and white
+              // showed as a pale strip along the top edge before the app's own
+              // background painted over it.
+              <div className="overflow-hidden rounded-2xl border border-border-soft bg-black">
                 <iframe
                   src={project.demo.src}
                   // Taller than the old fixed 560px, and tied to the viewport
