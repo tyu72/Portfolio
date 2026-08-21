@@ -38,8 +38,11 @@ const BLANK_PIXEL =
 // atlas and the back face to the RIGHT half (measured from card.glb). Each
 // custom image is composited into its own half so the two faces render
 // independently, aspect-preserving (no stretching).
-const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.755 };
-const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
+// 0.7572 is the card mesh's real maximum V (read from card.glb's TEXCOORD_0);
+// the shipped 0.755/0.757 stopped just short and left a thin strip of the
+// original texture showing along the bottom of each face.
+const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.7572 };
+const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.7572 };
 
 interface LanyardProps {
   position?: [number, number, number];
@@ -326,10 +329,16 @@ function Band({
               <meshPhysicalMaterial
                 map={cardMap}
                 map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
+                clearcoat={isMobile ? 0 : 0.6}
+                clearcoatRoughness={0.25}
+                roughness={0.85}
+                // Printed card stock, not metal. The shipped value was 0.8,
+                // which left the card reflecting an environment that is four
+                // thin lightformers on black — so every edge and rim face that
+                // missed a lightformer reflected black and read as a dark
+                // outline. At 0 the base colour map drives the surface.
+                metalness={0}
+                envMapIntensity={0.35}
               />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />

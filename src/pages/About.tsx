@@ -9,9 +9,9 @@ export default function About() {
         <img
           src={headshot}
           alt="Tony Yu"
-          width={900}
-          height={900}
-          className="h-[240px] w-full rounded-[20px] object-cover"
+          width={840}
+          height={1120}
+          className="aspect-[3/4] w-full self-start rounded-[20px] object-cover"
         />
         <div>
           <h1 className="mb-5 font-sans text-[clamp(34px,4.5vw,50px)] font-extrabold tracking-[-0.02em] text-ink">

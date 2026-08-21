@@ -100,8 +100,9 @@ const aboutOut = p(new URL('about-headshot.jpg', SRC));
 const meta = await sharp(p(new URL('about me image.jpg', SRC))).metadata();
 await sharp(p(new URL('about me image.jpg', SRC)))
   .rotate() // honour EXIF orientation
-  .resize({ width: 900, height: 900, fit: 'cover' })
+  // 3:4 portrait, matching the vertical frame the About page renders it in.
+  .resize({ width: 840, height: 1120, fit: 'cover', position: 'attention' })
   .jpeg({ quality: 86 })
   .toFile(aboutOut);
 
-console.log(`about-headshot.jpg 900x900 (source ${meta.width}x${meta.height})`);
+console.log(`about-headshot.jpg 840x1120 (source ${meta.width}x${meta.height})`);
