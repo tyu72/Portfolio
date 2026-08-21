@@ -4,6 +4,8 @@ import TiltCard from '../components/TiltCard';
 import RoleCycler from '../components/RoleCycler';
 import GradientHeading from '../components/GradientHeading';
 import Lanyard from '../components/Lanyard/Lanyard';
+import cardFront from '../components/Lanyard/card-front.jpg';
+import cardBack from '../components/Lanyard/card-back.png';
 import TagPill from '../components/TagPill';
 import { HERO, FEATURED_PROJECTS, ABOUT_BANNER } from '../lib/content';
 
@@ -11,12 +13,28 @@ export default function Home() {
   return (
     <div className="relative">
       {/* Draggable lanyard. Sits above page content (z-30) so the card covers
-          text as it swings, but below the sticky nav (z-50). */}
-      <div className="pointer-events-none absolute right-0 top-0 z-30 hidden h-[620px] w-[520px] lg:block">
+          text as it swings, but below the sticky nav (z-50).
+
+          Placement: measured against the rendered nav, the link centres sit at
+          Home 372px / Projects 293px from the content-box right edge.
+          right-[53px] plus half of w-[560px] centres the card at 333px — the
+          midpoint of those two, so it hangs under Home and Projects.
+
+          Height is capped at 560px because the canvas swallows pointer events
+          across its whole box: at 680px it covered the "View all" link and the
+          BubbleMage card below, making them silently unclickable. */}
+      <div className="pointer-events-none absolute right-[53px] top-0 z-30 hidden h-[560px] w-[560px] lg:block">
         <div className="pointer-events-auto h-full w-full">
-          {/* Lower the camera's z to make the card appear larger; the rig is
-              anchored at world y=4, so going much below ~24 crops the strap. */}
-          <Lanyard position={[0, 0, 26]} gravity={[0, -40, 0]} />
+          {/* Camera z sets the card's on-screen size: smaller z = bigger card.
+              At z=14 in a 560px-tall canvas the card renders ~255px tall. The
+              rig is anchored at world y=4, above the frustum, so the strap runs
+              off the top of the canvas and reads as hanging from under the nav. */}
+          <Lanyard
+            position={[0, 0, 14]}
+            gravity={[0, -40, 0]}
+            frontImage={cardFront}
+            backImage={cardBack}
+          />
         </div>
       </div>
 

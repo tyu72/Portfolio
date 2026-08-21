@@ -1,12 +1,18 @@
 import ScrollReveal from '../components/ScrollReveal';
-import ImageSlot from '../components/ImageSlot';
 import { ABOUT, SKILL_GROUPS } from '../lib/content';
+import headshot from '../images/about-headshot.jpg';
 
 export default function About() {
   return (
     <div>
       <section className="mx-auto grid max-w-[1100px] gap-10 px-[clamp(24px,6vw,80px)] pb-[90px] pt-[clamp(70px,10vh,110px)] sm:grid-cols-[minmax(180px,240px)_1fr]">
-        <ImageSlot id={ABOUT.headshotId} placeholder={ABOUT.headshotPlaceholder} className="h-[240px] w-full" />
+        <img
+          src={headshot}
+          alt="Tony Yu"
+          width={900}
+          height={900}
+          className="h-[240px] w-full rounded-[20px] object-cover"
+        />
         <div>
           <h1 className="mb-5 font-sans text-[clamp(34px,4.5vw,50px)] font-extrabold tracking-[-0.02em] text-ink">
             About me
