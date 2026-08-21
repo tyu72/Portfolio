@@ -4,6 +4,7 @@ import TiltCard from '../components/TiltCard';
 import RoleCycler from '../components/RoleCycler';
 import GradientHeading from '../components/GradientHeading';
 import HeroIdentityCard from '../components/HeroIdentityCard';
+import TagPill from '../components/TagPill';
 import { HERO, FEATURED_PROJECTS, ABOUT_BANNER } from '../lib/content';
 
 export default function Home() {
@@ -64,9 +65,7 @@ export default function Home() {
               <p className="mb-[18px] font-sans text-[15px] leading-[1.55] text-ink-soft">{project.description}</p>
               <div className="flex flex-wrap gap-2">
                 {project.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-pill px-2.5 py-1 font-mono text-[11px] text-ink-soft">
-                    {tag}
-                  </span>
+                  <TagPill key={tag} label={tag} />
                 ))}
               </div>
             </TiltCard>

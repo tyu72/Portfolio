@@ -9,14 +9,18 @@ export default function RoleCycler() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    let fadeTimeout: ReturnType<typeof setTimeout>;
     const interval = setInterval(() => {
       setVisible(false);
-      setTimeout(() => {
+      fadeTimeout = setTimeout(() => {
         setIndex((prev) => (prev + 1) % HERO_ROLES.length);
         setVisible(true);
       }, FADE_MS);
     }, INTERVAL_MS);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(fadeTimeout);
+    };
   }, []);
 
   return (
