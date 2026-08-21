@@ -134,7 +134,13 @@ export const ABOUT = {
     "I'm a computer science and game design major who likes taking things from a blank file to something people can actually use. That's meant building web apps, writing gameplay systems in Unity, and lately spending more time thinking about why people click what they click than how the code works underneath.",
     "Right now I'm aiming toward product management — I like being close enough to the code to know what's actually hard to build, and close enough to the user to know what's actually worth building.",
   ],
-  resume: { heading: 'Resume', body: 'The full rundown, one PDF.', cta: { label: 'Download resume ↓', href: '#' } },
+  // Served straight from public/, so the URL stays clean and stable rather
+  // than being content-hashed by the bundler.
+  resume: {
+    heading: 'Resume',
+    body: 'The full rundown, one PDF.',
+    cta: { label: 'Download resume ↓', href: '/Tony-Yu-Resume.pdf' }
+  },
 };
 
 export type SkillGroup = { label: string; accentClass: string; items: string[] };

@@ -1,4 +1,5 @@
 import ScrollReveal from '../components/ScrollReveal';
+import DepthText from '../components/DepthText/DepthText';
 import { ABOUT, SKILL_GROUPS } from '../lib/content';
 import headshot from '../images/about-headshot.jpg';
 
@@ -14,13 +15,22 @@ export default function About() {
           className="aspect-[3/4] w-full self-start rounded-[20px] object-cover"
         />
         <div>
-          <h1 className="mb-5 font-sans text-[clamp(34px,4.5vw,50px)] font-extrabold tracking-[-0.02em] text-ink">
-            About me
+          {/* Kept inside an h1 so the page still has a heading in the document
+              outline — DepthText renders spans. Its depth colour is the same
+              purple as the background pixels and the cards' spotlight. */}
+          <h1 className="mb-5">
+            <DepthText
+              text="About me"
+              faceColor="#f2f4fb"
+              depthColor="#6f74e8"
+              fontSize="clamp(38px, 5vw, 58px)"
+              className="font-sans"
+            />
           </h1>
           {ABOUT.bio.map((paragraph, i) => (
             <p
               key={i}
-              className={`max-w-[640px] font-sans text-[17px] leading-[1.7] text-ink-soft ${i === 0 ? 'mb-4' : ''}`}
+              className={`max-w-[640px] font-sans text-[17px] leading-[1.7] text-white ${i === 0 ? 'mb-4' : ''}`}
             >
               {paragraph}
             </p>
@@ -59,6 +69,9 @@ export default function About() {
           </div>
           <a
             href={ABOUT.resume.cta.href}
+            // The label says download, so save it rather than opening a viewer,
+            // and name the saved file properly.
+            download="Tony-Yu-Resume.pdf"
             className="whitespace-nowrap rounded-full bg-panel-ink px-[26px] py-[13px] font-sans text-sm font-bold text-panel no-underline transition-colors hover:bg-accent hover:text-white"
           >
             {ABOUT.resume.cta.label}
