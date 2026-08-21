@@ -80,9 +80,10 @@ export default function Projects() {
                   {project.demo.video && (
                     <video
                       controls
-                      // The clip is large, so nothing is fetched until play is
-                      // pressed — the poster is all the page actually loads.
-                      preload="none"
+                      // metadata, not auto: enough for the browser to show a
+                      // frame and the duration without pulling the whole ~52MB
+                      // clip, which only downloads once play is pressed.
+                      preload="metadata"
                       poster={project.demo.video.poster}
                       className="block h-[200px] w-full rounded-2xl border border-border-soft bg-black object-cover"
                     >

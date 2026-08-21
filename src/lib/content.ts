@@ -77,7 +77,7 @@ export const ABOUT_BANNER = {
 
 export type ProjectDemo =
   | { type: 'iframe'; src: string; fallbackHref: string; note: string }
-  | { type: 'media'; video?: { src: string; poster: string }; images: { src: string; alt: string }[] };
+  | { type: 'media'; video?: { src: string; poster?: string }; images: { src: string; alt: string }[] };
 
 export type ProjectDetail = {
   slug: string;
@@ -120,7 +120,7 @@ export const PROJECTS: ProjectDetail[] = [
     // page only fetches it if someone presses play.
     demo: {
       type: 'media',
-      video: { src: '/bubblemage-preview.mp4', poster: '/bubblemage-screenshot.jpg' },
+      video: { src: '/bubblemage-preview.mp4' },
       images: [{ src: '/bubblemage-screenshot.jpg', alt: 'BubbleMage gameplay screenshot' }],
     },
   },
