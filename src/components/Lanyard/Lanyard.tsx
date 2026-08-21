@@ -99,6 +99,8 @@ interface LanyardProps {
   anchorRightPx?: number | null;
   /** Pins the card's rendered height in px, independent of canvas size. */
   cardHeightPx?: number | null;
+  /** Length of each of the strap's three segments, in world units. */
+  ropeSegmentLength?: number;
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
@@ -113,6 +115,7 @@ export default function Lanyard({
   transparent = true,
   anchorRightPx = null,
   cardHeightPx = null,
+  ropeSegmentLength = 1,
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
@@ -153,6 +156,7 @@ export default function Lanyard({
             imageFit={imageFit}
             lanyardImage={lanyardImage}
             lanyardWidth={lanyardWidth}
+            ropeSegmentLength={ropeSegmentLength}
           />
         </Physics>
         <Environment blur={0.75}>
@@ -199,6 +203,7 @@ interface BandProps {
   imageFit?: 'cover' | 'contain';
   lanyardImage?: string | null;
   lanyardWidth?: number;
+  ropeSegmentLength?: number;
 }
 
 type LanyardRigidBody = RapierRigidBody & {
@@ -213,7 +218,8 @@ function Band({
   backImage = null,
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 1
+  lanyardWidth = 1,
+  ropeSegmentLength = 1
 }: BandProps) {
   const band = useRef<THREE.Mesh<InstanceType<typeof MeshLineGeometry>, InstanceType<typeof MeshLineMaterial>>>(null!);
   const fixed = useRef<RapierRigidBody>(null!);
@@ -303,9 +309,13 @@ function Band({
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
 
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
+  // Three equal segments make up the strap, so the card hangs
+  // 3 * ropeSegmentLength below the anchor, plus the 1.45 spherical-joint drop
+  // to the card's centre and its 1.125 half-height. Shortening these raises the
+  // card and shortens the visible strap.
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], ropeSegmentLength]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], ropeSegmentLength]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], ropeSegmentLength]);
   useSphericalJoint(j3, card, [
     [0, 0, 0],
     [0, 1.45, 0]

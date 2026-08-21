@@ -29,10 +29,16 @@ export default function Home() {
           {/* cardHeightPx pins the card's rendered height, so resizing the
               canvas no longer changes how big it looks — the camera distance is
               solved for instead. */}
+          {/* ropeSegmentLength keeps the card clear of the "View all" link.
+              The card's bottom rests at world y = 1.425 - 3 * length, and at
+              255px per 2.25 units the canvas shows 113.3px per unit from a top
+              edge of y=3.971. At 0.77 the card bottom lands ~550px down the
+              canvas, about 24px above the link at 574px. */}
           <Lanyard
             gravity={[0, -40, 0]}
             cardHeightPx={255}
             anchorRightPx={333}
+            ropeSegmentLength={0.77}
             frontImage={cardFront}
             backImage={cardBack}
           />
