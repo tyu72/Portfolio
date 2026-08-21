@@ -35,24 +35,27 @@
    properties, so overriding the values here re-themes every component without
    touching a single class name. Set data-theme="dark" on <html>. */
 [data-theme='dark'] {
-  --color-bg: oklch(17% 0.014 260);
-  --color-surface: oklch(21% 0.016 260);
-  --color-surface-alt: oklch(25% 0.016 260);
-  --color-ink: oklch(96% 0.005 260);
-  --color-ink-soft: oklch(80% 0.012 260);
-  --color-ink-softer: oklch(66% 0.014 260);
-  --color-border: oklch(30% 0.016 260);
-  --color-border-soft: oklch(38% 0.018 260);
-  --color-pill: oklch(28% 0.018 260);
+  /* A mid dark grey rather than near-black: the lanyard's strap is almost
+     black, and against a near-black page it disappeared. */
+  --color-bg: oklch(29% 0.011 260);
+  --color-surface: oklch(34% 0.012 260);
+  --color-surface-alt: oklch(38% 0.012 260);
+  --color-ink: oklch(97% 0.005 260);
+  --color-ink-soft: oklch(86% 0.012 260);
+  --color-ink-softer: oklch(75% 0.014 260);
+  --color-border: oklch(44% 0.016 260);
+  --color-border-soft: oklch(52% 0.018 260);
+  --color-pill: oklch(40% 0.018 260);
 
-  /* Lifted so they hold contrast against a dark background. */
-  --color-accent: oklch(74% 0.13 260);
-  --color-accent-deep: oklch(82% 0.12 260);
-  --color-live: oklch(78% 0.17 150);
-  --color-game: oklch(75% 0.14 45);
+  /* Lifted so they hold contrast against the grey. */
+  --color-accent: oklch(80% 0.12 260);
+  --color-accent-deep: oklch(88% 0.1 260);
+  --color-live: oklch(83% 0.17 150);
+  --color-game: oklch(80% 0.13 45);
 
-  /* Inverted panels lift off the page rather than dropping into it. */
-  --color-panel: oklch(28% 0.02 260);
+  /* Panels drop below the page rather than lifting off it, now that the page
+     itself is mid-grey. */
+  --color-panel: oklch(20% 0.016 260);
   --color-panel-ink: oklch(97% 0.005 260);
 }
 
@@ -75,16 +78,6 @@
   }
 }
 
-@keyframes floatBlob {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate(-16px, -24px) rotate(8deg);
-  }
-}
-
 @keyframes pulseDot {
   0%,
   100% {
@@ -98,9 +91,6 @@
 @layer utilities {
   .animate-gradient-shift {
     animation: gradientShift 8s ease infinite;
-  }
-  .animate-float-blob {
-    animation: floatBlob 9s ease-in-out infinite;
   }
   .animate-pulse-dot {
     animation: pulseDot 1.8s ease infinite;

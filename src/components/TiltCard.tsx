@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode, type MouseEvent } from 'react';
+import { Link } from 'react-router-dom';
 
 type TiltCardProps = {
   children: ReactNode;
@@ -35,8 +36,18 @@ export default function TiltCard({ children, className = '', href }: TiltCardPro
   );
 
   if (href) {
+    // Route internal links through the router. A plain anchor triggers a full
+    // page reload, which on this site means replaying the lanyard's drop-in and
+    // rebuilding the background shader on every card click.
+    if (href.startsWith('/')) {
+      return (
+        <Link to={href} className="block h-full w-full no-underline">
+          {content}
+        </Link>
+      );
+    }
     return (
-      <a href={href} className="block h-full w-full no-underline">
+      <a href={href} target="_blank" rel="noopener" className="block h-full w-full no-underline">
         {content}
       </a>
     );

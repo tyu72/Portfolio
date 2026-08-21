@@ -8,10 +8,16 @@ import SpotlightCard from '../components/SpotlightCard/SpotlightCard';
 import cardFront from '../components/Lanyard/card-front.jpg';
 import cardBack from '../components/Lanyard/card-back.png';
 import strapTy from '../components/Lanyard/strap-ty.png';
+import strapTyDark from '../components/Lanyard/strap-ty-dark.png';
+import type { Theme } from '../lib/theme';
 import TagPill from '../components/TagPill';
-import { HERO, FEATURED_PROJECTS, ABOUT_BANNER } from '../lib/content';
+import { HERO, FEATURED_PROJECTS } from '../lib/content';
 
-export default function Home() {
+export default function Home({ theme = 'light' }: { theme?: Theme }) {
+  // The strap inverts with the theme: a near-black strap is invisible against
+  // the dark theme's grey, and a light one is invisible on the light page.
+  const strap = theme === 'dark' ? strapTyDark : strapTy;
+
   return (
     <div className="relative">
       {/* Draggable lanyard. Sits above page content (z-30) so the card covers
@@ -44,7 +50,7 @@ export default function Home() {
             cardHeightPx={255}
             anchorRightPx={333}
             ropeSegmentLength={0.77}
-            lanyardImage={strapTy}
+            lanyardImage={strap}
             strapTileLength={0.8}
             frontImage={cardFront}
             backImage={cardBack}
@@ -53,13 +59,6 @@ export default function Home() {
       </div>
 
       <section className="relative mx-auto grid max-w-[1140px] gap-10 overflow-hidden px-[clamp(24px,6vw,80px)] pb-[clamp(70px,10vh,130px)] pt-[clamp(90px,15vh,170px)] lg:grid-cols-[1fr_360px]">
-        <div
-          aria-hidden
-          className="animate-float-blob pointer-events-none absolute -right-10 -top-16 z-0 h-[340px] w-[340px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle at 30% 30%, oklch(85% 0.08 260 / .5), transparent 70%)',
-          }}
-        />
         {/* The intro sits on a card so the animated background reads behind it
             rather than through the text. Translucent plus a blur, so the
             pattern is still visible without competing with the copy. */}
@@ -84,42 +83,29 @@ export default function Home() {
         </div>
         <div className="grid gap-7 sm:grid-cols-2">
           {FEATURED_PROJECTS.map((project) => (
-            <TiltCard
-              key={project.slug}
-              href={project.href}
-              className="rounded-[20px] border border-border bg-surface p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-            >
-              <div className={`mb-3.5 font-mono text-xs font-semibold tracking-[0.05em] ${project.status.accentClass}`}>
-                {project.status.label}
-              </div>
-              <h3 className="mb-2.5 font-sans text-[23px] font-extrabold text-ink">{project.title}</h3>
-              <p className="mb-[18px] font-sans text-[15px] leading-[1.55] text-ink-soft">{project.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
-                  <TagPill key={tag} label={tag} />
-                ))}
-              </div>
+            <TiltCard key={project.slug} href={project.href} className="h-full">
+              <SpotlightCard
+                className="h-full rounded-[20px] border border-border bg-surface p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+                spotlightColor="rgba(95, 150, 157, 0.45)"
+              >
+                <div
+                  className={`mb-3.5 font-mono text-xs font-semibold tracking-[0.05em] ${project.status.accentClass}`}
+                >
+                  {project.status.label}
+                </div>
+                <h3 className="mb-2.5 font-sans text-[23px] font-extrabold text-ink">{project.title}</h3>
+                <p className="mb-[18px] font-sans text-[15px] leading-[1.55] text-ink-soft">{project.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <TagPill key={tag} label={tag} />
+                  ))}
+                </div>
+              </SpotlightCard>
             </TiltCard>
           ))}
         </div>
       </ScrollReveal>
 
-      <ScrollReveal className="mx-auto max-w-[1140px] px-[clamp(24px,6vw,80px)] pb-[140px]">
-        <div className="flex flex-wrap items-center justify-between gap-8 rounded-3xl bg-panel p-10 sm:p-14">
-          <div>
-            <h2 className="mb-3 font-sans text-[clamp(24px,2.6vw,30px)] font-extrabold text-panel-ink">
-              {ABOUT_BANNER.heading}
-            </h2>
-            <p className="max-w-[480px] font-sans text-base text-panel-ink/80">{ABOUT_BANNER.body}</p>
-          </div>
-          <Link
-            to={ABOUT_BANNER.cta.href}
-            className="whitespace-nowrap rounded-full bg-panel-ink px-[30px] py-[15px] font-sans text-sm font-bold text-panel no-underline transition-colors hover:bg-accent hover:text-white"
-          >
-            {ABOUT_BANNER.cta.label}
-          </Link>
-        </div>
-      </ScrollReveal>
     </div>
   );
 }

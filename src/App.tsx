@@ -38,7 +38,7 @@ export default function App() {
         <Nav theme={theme} onToggleTheme={toggleTheme} />
         <main>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home theme={theme} />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
