@@ -18,13 +18,15 @@ function ScaledEmbed({
   title,
   width,
   height,
-  inset = 0
+  inset = 0,
+  contentFraction = 1
 }: {
   src: string;
   title: string;
   width: number;
   height: number;
   inset?: number;
+  contentFraction?: number;
 }) {
   const holder = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -43,7 +45,10 @@ function ScaledEmbed({
     // as part of the rendering lifecycle, so relying on it alone leaves the
     // embed at scale 1 — full size and cropped — until something else forces a
     // frame. The synchronous read settles it at mount.
-    const measure = () => setScale(Math.min(1, el.getBoundingClientRect().width / (width + inset * 2)));
+    // Divide by the fraction the canvas actually occupies, so the canvas — not
+    // the frame — is what ends up matching the holder's width.
+    const measure = () =>
+      setScale(el.getBoundingClientRect().width / ((width + inset * 2) * contentFraction));
     measure();
 
     const observer = new ResizeObserver(measure);
@@ -53,7 +58,7 @@ function ScaledEmbed({
       observer.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [width, inset]);
+  }, [width, inset, contentFraction]);
 
   return (
     <div>
@@ -159,12 +164,15 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
                 width={project.demo.naturalWidth}
                 height={project.demo.naturalHeight}
                 inset={project.demo.embedInset}
+                contentFraction={project.demo.embedContentFraction}
               />
             ) : (
               <div className="overflow-hidden rounded-2xl border border-border-soft bg-white">
                 <iframe
                   src={project.demo.src}
-                  className="block h-[560px] w-full border-0"
+                  // Taller than the old fixed 560px, and tied to the viewport
+                  // so a big screen gets a proportionally bigger demo.
+                  className="block h-[clamp(560px,78vh,900px)] w-full border-0"
                   loading="lazy"
                   title={`${project.title} live app`}
                 />

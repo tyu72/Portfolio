@@ -95,6 +95,14 @@ export type ProjectDemo =
        * centring pushes it off to one side.
        */
       embedInset?: number;
+      /**
+       * Fraction of the frame's width the game's canvas actually occupies.
+       * Some pages render their canvas narrower than the frame, leaving dead
+       * space down one side; scaling by this fraction pushes that space past
+       * the edge, where it is clipped. 1 means the canvas fills the frame.
+       * Measured from the rendered page — it cannot be read across origins.
+       */
+      embedContentFraction?: number;
     }
   | { type: 'media'; video?: { src: string; poster?: string }; images: { src: string; alt: string }[] };
 
@@ -185,6 +193,8 @@ export const PROJECTS: ProjectDetail[] = [
       naturalHeight: 1000,
       // This page sets no margin reset, so it inherits the browser default 8px.
       embedInset: 8,
+      // Its canvas renders narrower than the frame, leaving a bar on the right.
+      embedContentFraction: 0.87,
     },
   },
 ];
