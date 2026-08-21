@@ -424,17 +424,22 @@ function Band({
     <>
       <group position={[0, 4, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps} type="dynamic">
+        {/* Start each body where it will hang, straight down from the anchor.
+            These shipped spread out along +X, so on load the whole rig was
+            horizontal and gravity (-40) whipped it down through a swing before
+            settling — the glitch on refresh. Starting at rest means there is
+            nothing to settle. */}
+        <RigidBody position={[0, -ropeSegmentLength, 0]} ref={j1} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps} type="dynamic">
+        <RigidBody position={[0, -2 * ropeSegmentLength, 0]} ref={j2} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps} type="dynamic">
+        <RigidBody position={[0, -3 * ropeSegmentLength, 0]} ref={j3} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody
-          position={[2, 0, 0]}
+          position={[0, -3 * ropeSegmentLength - 1.45, 0]}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}

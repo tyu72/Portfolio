@@ -415,6 +415,41 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     const container = containerRef.current;
     if (!container) return;
     speedRef.current = speed;
+
+    // Pointer input is bound to window rather than to the canvas. As a
+    // full-viewport background this sits beneath the page content, so the
+    // canvas never receives pointer events itself and the click/ripple
+    // response would never fire. Reading state from threeRef at event time
+    // (instead of closing over it) keeps these handlers valid across prop
+    // changes that reuse the existing renderer.
+    const canvasPixels = (e: PointerEvent, el: HTMLCanvasElement) => {
+      const rect = el.getBoundingClientRect();
+      return {
+        fx: (e.clientX - rect.left) * (el.width / rect.width),
+        fy: (rect.height - (e.clientY - rect.top)) * (el.height / rect.height)
+      };
+    };
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const t = threeRef.current;
+      if (!t) return;
+      const { fx, fy } = canvasPixels(e, t.renderer.domElement);
+      const ix = t.clickIx ?? 0;
+      t.uniforms.uClickPos.value[ix].set(fx, fy);
+      t.uniforms.uClickTimes.value[ix] = t.uniforms.uTime.value;
+      t.clickIx = (ix + 1) % MAX_CLICKS;
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const t = threeRef.current;
+      if (!t?.touch) return;
+      const el = t.renderer.domElement;
+      const { fx, fy } = canvasPixels(e, el);
+      t.touch.addTouch({ x: fx / el.width, y: fy / el.height });
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
     const needsReinitKeys: (keyof ReinitConfig)[] = ['antialias', 'liquid', 'noiseAmount'];
     const cfg: ReinitConfig = { antialias, liquid, noiseAmount };
     let mustReinit = false;
@@ -550,37 +585,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         composer.addPass(noisePass);
       }
       if (composer) composer.setSize(renderer.domElement.width, renderer.domElement.height);
-      const mapToPixels = (e: PointerEvent) => {
-        const rect = renderer.domElement.getBoundingClientRect();
-        const scaleX = renderer.domElement.width / rect.width;
-        const scaleY = renderer.domElement.height / rect.height;
-        const fx = (e.clientX - rect.left) * scaleX;
-        const fy = (rect.height - (e.clientY - rect.top)) * scaleY;
-        return {
-          fx,
-          fy,
-          w: renderer.domElement.width,
-          h: renderer.domElement.height
-        };
-      };
-      const onPointerDown = (e: PointerEvent) => {
-        const { fx, fy } = mapToPixels(e);
-        const ix = threeRef.current?.clickIx ?? 0;
-        uniforms.uClickPos.value[ix].set(fx, fy);
-        uniforms.uClickTimes.value[ix] = uniforms.uTime.value;
-        if (threeRef.current) threeRef.current.clickIx = (ix + 1) % MAX_CLICKS;
-      };
-      const onPointerMove = (e: PointerEvent) => {
-        if (!touch) return;
-        const { fx, fy, w, h } = mapToPixels(e);
-        touch.addTouch({ x: fx / w, y: fy / h });
-      };
-      renderer.domElement.addEventListener('pointerdown', onPointerDown, {
-        passive: true
-      });
-      renderer.domElement.addEventListener('pointermove', onPointerMove, {
-        passive: true
-      });
+      // Pointer handling lives at effect scope (see handlePointerDown /
+      // handlePointerMove above) so it survives prop changes that don't
+      // reinitialise the renderer.
       let raf = 0;
       const animate = () => {
         if (autoPauseOffscreen && !visibilityRef.current.visible) {
@@ -651,6 +658,12 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     }
     prevConfigRef.current = cfg;
     return () => {
+      // Always detach, including on the reinit early-return below: these live
+      // on window now, so they outlive the canvas, and every effect run adds a
+      // fresh pair.
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointermove', handlePointerMove);
+
       if (threeRef.current && mustReinit) return;
       if (!threeRef.current) return;
       const t = threeRef.current;
