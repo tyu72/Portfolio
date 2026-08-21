@@ -26,7 +26,7 @@ export default function App() {
           patternScale={2}
           patternDensity={1}
           speed={0.5}
-          edgeFade={0.5}
+          edgeFade={0.2}
           transparent
         />
       </div>
