@@ -103,6 +103,13 @@ interface LanyardProps {
   ropeSegmentLength?: number;
   /** World length of one repeat of the strap print. Larger = fewer, longer tiles. */
   strapTileLength?: number;
+  /**
+   * Fraction of its resting length the rig starts gathered to, giving it a drop
+   * on load. 1 starts already at rest (no drop); lower drops from higher up.
+   */
+  dropFrom?: number;
+  /** Degrees off vertical the rig starts at, giving the drop a swing. */
+  dropTilt?: number;
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
@@ -119,6 +126,8 @@ export default function Lanyard({
   cardHeightPx = null,
   ropeSegmentLength = 1,
   strapTileLength = 0.8,
+  dropFrom = 0.55,
+  dropTilt = 16,
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
@@ -161,6 +170,8 @@ export default function Lanyard({
             lanyardWidth={lanyardWidth}
             ropeSegmentLength={ropeSegmentLength}
             strapTileLength={strapTileLength}
+            dropFrom={dropFrom}
+            dropTilt={dropTilt}
           />
         </Physics>
         <Environment blur={0.75}>
@@ -209,6 +220,8 @@ interface BandProps {
   lanyardWidth?: number;
   ropeSegmentLength?: number;
   strapTileLength?: number;
+  dropFrom?: number;
+  dropTilt?: number;
 }
 
 type LanyardRigidBody = RapierRigidBody & {
@@ -225,7 +238,9 @@ function Band({
   lanyardImage = null,
   lanyardWidth = 1,
   ropeSegmentLength = 1,
-  strapTileLength = 0.8
+  strapTileLength = 0.8,
+  dropFrom = 0.55,
+  dropTilt = 16
 }: BandProps) {
   const band = useRef<THREE.Mesh<InstanceType<typeof MeshLineGeometry>, InstanceType<typeof MeshLineMaterial>>>(null!);
   const fixed = useRef<RapierRigidBody>(null!);
@@ -336,6 +351,15 @@ function Band({
     }
   }, [hovered, dragged]);
 
+  // Starting position for a body hanging `depth` along the strap: gathered
+  // toward the anchor so it has somewhere to fall from, and leaned off vertical
+  // so it swings on the way down.
+  const startAt = (depth: number): [number, number, number] => {
+    const tilt = (dropTilt * Math.PI) / 180;
+    const reach = depth * dropFrom;
+    return [reach * Math.sin(tilt), -reach * Math.cos(tilt), 0];
+  };
+
   // Where the pointer is, tracked on window rather than on the canvas: the
   // canvas spends most of its life with pointer-events disabled (below), so it
   // cannot report this itself.
@@ -424,22 +448,23 @@ function Band({
     <>
       <group position={[0, 4, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        {/* Start each body where it will hang, straight down from the anchor.
-            These shipped spread out along +X, so on load the whole rig was
-            horizontal and gravity (-40) whipped it down through a swing before
-            settling — the glitch on refresh. Starting at rest means there is
-            nothing to settle. */}
-        <RigidBody position={[0, -ropeSegmentLength, 0]} ref={j1} {...segmentProps} type="dynamic">
+        {/* Start the rig gathered toward the anchor (dropFrom) and leaning a
+            little off vertical (dropTilt), so on load it falls into place and
+            swings gently to a stop. These shipped spread along +X, which
+            started the lanyard fully horizontal and whipped it down through a
+            90° swing — the glitch on refresh. A small lean gives the same kind
+            of motion at an amplitude the joint damping settles smoothly. */}
+        <RigidBody position={startAt(ropeSegmentLength)} ref={j1} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[0, -2 * ropeSegmentLength, 0]} ref={j2} {...segmentProps} type="dynamic">
+        <RigidBody position={startAt(2 * ropeSegmentLength)} ref={j2} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[0, -3 * ropeSegmentLength, 0]} ref={j3} {...segmentProps} type="dynamic">
+        <RigidBody position={startAt(3 * ropeSegmentLength)} ref={j3} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody
-          position={[0, -3 * ropeSegmentLength - 1.45, 0]}
+          position={startAt(3 * ropeSegmentLength + 1.45)}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
