@@ -43,7 +43,7 @@ function ScaledEmbed({
     // as part of the rendering lifecycle, so relying on it alone leaves the
     // embed at scale 1 — full size and cropped — until something else forces a
     // frame. The synchronous read settles it at mount.
-    const measure = () => setScale(Math.min(1, el.getBoundingClientRect().width / width));
+    const measure = () => setScale(Math.min(1, el.getBoundingClientRect().width / (width + inset * 2)));
     measure();
 
     const observer = new ResizeObserver(measure);
@@ -53,14 +53,14 @@ function ScaledEmbed({
       observer.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [width]);
+  }, [width, inset]);
 
   return (
     <div>
       <div
         ref={holder}
         className="relative w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
-        style={{ height: height * scale }}
+        style={{ height: (height + inset * 2) * scale }}
       >
         {running ? (
           <iframe
@@ -75,15 +75,8 @@ function ScaledEmbed({
             // Keyboard focus is what makes it playable: the game only receives
             // key events once the frame itself is focused.
             allow="autoplay; fullscreen; gamepad; keyboard-map"
-            className="absolute border-0"
-            style={{
-              // Pulled back by the margin so it lands outside the box, leaving
-              // the canvas itself flush with the edges.
-              left: -inset * scale,
-              top: -inset * scale,
-              transform: `scale(${scale})`,
-              transformOrigin: '0 0'
-            }}
+            className="absolute left-0 top-0 border-0"
+            style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}
           />
         ) : (
           <button
