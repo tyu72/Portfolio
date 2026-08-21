@@ -75,7 +75,19 @@ export const ABOUT_BANNER = {
 };
 
 export type ProjectDemo =
-  | { type: 'iframe'; src: string; fallbackHref: string; note: string }
+  | {
+      type: 'iframe';
+      src: string;
+      fallbackHref: string;
+      note: string;
+      /**
+       * The embed's own fixed canvas size, when it has one. Both games render
+       * to a fixed Phaser canvas, so the embed is rendered at that size and
+       * scaled to fit the card — otherwise the game is simply cropped.
+       */
+      naturalWidth?: number;
+      naturalHeight?: number;
+    }
   | { type: 'media'; video?: { src: string; poster?: string }; images: { src: string; alt: string }[] };
 
 export type ProjectDetail = {
@@ -121,6 +133,46 @@ export const PROJECTS: ProjectDetail[] = [
       type: 'media',
       video: { src: '/bubblemage-preview.mp4' },
       images: [{ src: '/bubblemage-screenshot.jpg', alt: 'BubbleMage gameplay screenshot' }],
+    },
+  },
+  {
+    slug: 'space-drift',
+    status: { label: 'PLAYABLE · BROWSER GAME', accentClass: 'text-live', dot: true },
+    title: 'Space Drift',
+    description:
+      'An arcade dodger built in Phaser: steer a ship through falling asteroids and grab fuel to trigger nitro, which makes you briefly immune — and stacks if you collect more while it is already running. Every 15 seconds the asteroids get faster and more numerous, so a run is a question of how long you can keep up. The sprites and backgrounds are hand-drawn.',
+    tags: ['Phaser', 'JavaScript', 'Game design', 'Solo project'],
+    links: [
+      { label: 'Play full screen ↗', href: 'https://tyu72.github.io/Space-Drift/' },
+      { label: 'View code ↗', href: 'https://github.com/tyu72/Space-Drift' },
+    ],
+    demo: {
+      type: 'iframe',
+      src: 'https://tyu72.github.io/Space-Drift/',
+      fallbackHref: 'https://tyu72.github.io/Space-Drift/',
+      note: 'PLAY IT HERE — click the game first, then use the keyboard',
+      naturalWidth: 800,
+      naturalHeight: 600,
+    },
+  },
+  {
+    slug: 'typing-tutor-turbo',
+    status: { label: 'PLAYABLE · BROWSER GAME', accentClass: 'text-live', dot: true },
+    title: 'Typing Tutor Turbo',
+    description:
+      'A typing game built in Phaser with Michael Xi. Words stack up and you pick one with the arrow keys, then clear it letter by letter — but hollow letters are shielded and take several hits, shields regenerate while you work, and a letter you type can count toward other words on screen. Built to make drilling accuracy feel like an arcade run rather than a lesson.',
+    tags: ['Phaser', 'JavaScript', 'Game design', 'Two-person team'],
+    links: [
+      { label: 'Play full screen ↗', href: 'https://xismichael.github.io/typingTutorTurbo/' },
+      { label: 'View code ↗', href: 'https://github.com/xismichael/typingTutorTurbo' },
+    ],
+    demo: {
+      type: 'iframe',
+      src: 'https://xismichael.github.io/typingTutorTurbo/',
+      fallbackHref: 'https://xismichael.github.io/typingTutorTurbo/',
+      note: 'PLAY IT HERE — click the game first, then use the keyboard',
+      naturalWidth: 1500,
+      naturalHeight: 1000,
     },
   },
 ];

@@ -1,8 +1,73 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import FoldText from '../components/FoldText/FoldText';
 import TagPill from '../components/TagPill';
 import CardDeck from '../components/CardDeck/CardDeck';
 import { PROJECTS, type ProjectDetail } from '../lib/content';
+
+/**
+ * An embed that renders at its own fixed size and is scaled down to fit.
+ *
+ * Both games draw to a fixed Phaser canvas — 800x600 and 1500x1000 — and
+ * neither scales itself, so dropping them into a narrower card would simply
+ * crop the game. Rendering the iframe at its true size and applying a CSS
+ * scale keeps the whole playfield visible, and the game still believes it has
+ * its full canvas, so input and layout behave normally.
+ */
+function ScaledEmbed({
+  src,
+  title,
+  width,
+  height
+}: {
+  src: string;
+  title: string;
+  width: number;
+  height: number;
+}) {
+  const holder = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const el = holder.current;
+    if (!el) return;
+
+    // Measure immediately as well as observing. ResizeObserver only delivers
+    // as part of the rendering lifecycle, so relying on it alone leaves the
+    // embed at scale 1 — full size and cropped — until something else forces a
+    // frame. The synchronous read settles it at mount.
+    const measure = () => setScale(Math.min(1, el.getBoundingClientRect().width / width));
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [width]);
+
+  return (
+    <div
+      ref={holder}
+      className="relative w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
+      style={{ height: height * scale }}
+    >
+      <iframe
+        src={src}
+        title={title}
+        width={width}
+        height={height}
+        loading="lazy"
+        // Keyboard focus is what makes it playable: the game only receives key
+        // events once the frame itself is focused, hence the hint in the label.
+        allow="autoplay; fullscreen; gamepad; keyboard-map"
+        className="absolute left-0 top-0 border-0"
+        style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}
+      />
+    </div>
+  );
+}
 
 /**
  * `isActive` gates the demo block. Only the front card mounts its iframe or
@@ -49,14 +114,23 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
         (project.demo.type === 'iframe' ? (
           <div className="border-t border-border bg-surface-alt p-[clamp(20px,3vw,28px)]">
             <div className="mb-3 font-mono text-xs text-ink-softer">{project.demo.note}</div>
-            <div className="overflow-hidden rounded-2xl border border-border-soft bg-white">
-              <iframe
+            {project.demo.naturalWidth && project.demo.naturalHeight ? (
+              <ScaledEmbed
                 src={project.demo.src}
-                className="block h-[560px] w-full border-0"
-                loading="lazy"
-                title={`${project.title} live app`}
+                title={`${project.title} — playable`}
+                width={project.demo.naturalWidth}
+                height={project.demo.naturalHeight}
               />
-            </div>
+            ) : (
+              <div className="overflow-hidden rounded-2xl border border-border-soft bg-white">
+                <iframe
+                  src={project.demo.src}
+                  className="block h-[560px] w-full border-0"
+                  loading="lazy"
+                  title={`${project.title} live app`}
+                />
+              </div>
+            )}
             <div className="mt-2.5 font-sans text-[13px] text-ink-softer">
               If the embed doesn't load,{' '}
               <a href={project.demo.fallbackHref} target="_blank" rel="noopener" className="text-accent">

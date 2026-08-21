@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 export type CardDeckProps = {
   /** One entry per card, in stack order. */
@@ -39,6 +39,26 @@ export default function CardDeck({
 }: CardDeckProps) {
   const total = labels.length;
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  // Narrow screens get tighter offsets, or the stack's reserved gutter eats the
+  // card. Tracked on resize rather than by a media query in CSS because the
+  // offsets are applied as inline transforms.
+  const [compact, setCompact] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 640
+  );
+  useEffect(() => {
+    const onResize = () => setCompact(window.innerWidth < 640);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const stepX = compact ? cardDistance / 2 : cardDistance;
+  const stepY = compact ? verticalDistance / 2 : verticalDistance;
+
+  // Only a few cards peek out; deeper ones sit at the same place and fade away.
+  // Without this the reserved gutter would grow with every project added.
+  const maxDepth = Math.min(total - 1, compact ? 2 : 3);
 
   const go = (next: number) => onChange((next + total) % total);
 
@@ -110,12 +130,14 @@ export default function CardDeck({
       {/* Every card occupies the same grid cell, so the deck is as tall as its
           tallest card and the stack overlaps rather than flowing. The padding
           leaves room for the offset cards to peek out without being clipped. */}
-      <div className="[perspective:1400px]" style={{ paddingRight: cardDistance * (total - 1), paddingTop: verticalDistance * (total - 1) }}>
+      <div className="[perspective:1400px]" style={{ paddingRight: stepX * maxDepth, paddingTop: stepY * maxDepth }}>
         <div className="grid [transform-style:preserve-3d]">
           {labels.map((label, i) => {
             // Distance back in the stack: 0 is the front card.
             const depth = (i - activeIndex + total) % total;
             const isActive = depth === 0;
+            const shown = Math.min(depth, maxDepth);
+            const beyondStack = depth > maxDepth;
 
             return (
               <div
@@ -123,15 +145,15 @@ export default function CardDeck({
                 role="tabpanel"
                 aria-hidden={!isActive}
                 aria-label={label}
-                onClick={isActive ? undefined : () => onChange(i)}
+                onClick={isActive || beyondStack ? undefined : () => onChange(i)}
                 style={{
                   gridArea: '1 / 1',
-                  transform: `translate3d(${depth * cardDistance}px, ${-depth * verticalDistance}px, ${-depth * cardDistance * 1.5}px) skewY(${isActive ? 0 : skewAmount}deg)`,
+                  transform: `translate3d(${shown * stepX}px, ${-shown * stepY}px, ${-shown * stepX * 1.5}px) skewY(${isActive ? 0 : skewAmount}deg)`,
                   zIndex: total - depth,
-                  opacity: isActive ? 1 : 0.55,
+                  opacity: beyondStack ? 0 : isActive ? 1 : 0.55,
                   transition: 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 320ms ease'
                 }}
-                className={isActive ? '' : 'cursor-pointer'}
+                className={isActive ? '' : beyondStack ? 'pointer-events-none' : 'cursor-pointer'}
               >
                 {/* Cards behind are decoration: clicks promote them rather than
                     landing on a link, and they are out of the tab order. */}
