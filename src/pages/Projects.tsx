@@ -28,7 +28,7 @@ function ScaledEmbed({
   inset?: number;
   contentFraction?: number;
 }) {
-  const holder = useRef<HTMLDivElement>(null);
+  const outer = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const [scale, setScale] = useState(1);
   // Click to start. These games begin their menu music as soon as they load, so
@@ -38,17 +38,21 @@ function ScaledEmbed({
   const [running, setRunning] = useState(false);
 
   useLayoutEffect(() => {
-    const el = holder.current;
+    const el = outer.current;
     if (!el) return;
 
     // Measure immediately as well as observing. ResizeObserver only delivers
     // as part of the rendering lifecycle, so relying on it alone leaves the
-    // embed at scale 1 — full size and cropped — until something else forces a
-    // frame. The synchronous read settles it at mount.
-    // Divide by the fraction the canvas actually occupies, so the canvas — not
-    // the frame — is what ends up matching the holder's width.
-    const measure = () =>
-      setScale(el.getBoundingClientRect().width / ((width + inset * 2) * contentFraction));
+    // embed at scale 1 — full size — until something else forces a frame. The
+    // synchronous read settles it at mount.
+    //
+    // clientWidth, not getBoundingClientRect: the card sits inside the deck's
+    // 3D-transformed stack, so the bounding rect reports visually transformed
+    // pixels — measurably smaller than the element's real layout width. Scaling
+    // the frame by that shrunken figure left the game short of its box, which
+    // is what showed up as a dead bar down one side. clientWidth is layout
+    // pixels and ignores ancestor transforms.
+    const measure = () => setScale(el.clientWidth / (width + inset * 2));
     measure();
 
     const observer = new ResizeObserver(measure);
@@ -61,11 +65,16 @@ function ScaledEmbed({
   }, [width, inset, contentFraction]);
 
   return (
-    <div>
+    <div ref={outer} className="w-full">
+      {/* The box is narrowed to the game's own width and centred, rather than
+          the game being stretched to fill the card. Whatever margin the page
+          carries beside its canvas falls outside the box and is clipped. */}
       <div
-        ref={holder}
-        className="relative w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
-        style={{ height: (height + inset * 2) * scale }}
+        className="relative mx-auto max-w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
+        style={{
+          width: (width + inset * 2) * scale * contentFraction,
+          height: (height + inset * 2) * scale
+        }}
       >
         {running ? (
           <iframe

@@ -193,10 +193,6 @@ export const PROJECTS: ProjectDetail[] = [
       naturalHeight: 1000,
       // This page sets no margin reset, so it inherits the browser default 8px.
       embedInset: 8,
-      // Its canvas renders narrower than the frame, leaving a bar on the right.
-      // Measured by eye against the rendered page: 0.87 cut into the banner,
-      // so this backs off to show the full width.
-      embedContentFraction: 0.935,
     },
   },
 ];

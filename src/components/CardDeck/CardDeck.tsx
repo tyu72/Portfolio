@@ -131,7 +131,11 @@ export default function CardDeck({
           tallest card and the stack overlaps rather than flowing. The padding
           leaves room for the offset cards to peek out without being clipped. */}
       <div className="[perspective:1400px]" style={{ paddingRight: stepX * maxDepth, paddingTop: stepY * maxDepth }}>
-        <div className="grid [transform-style:preserve-3d]">
+        {/* minmax(0,1fr) so the column is sized by the deck, not by its cards.
+            A card holding an element with an explicit pixel width would
+            otherwise widen the column, which widens the card, which grows that
+            element again — a feedback loop rather than a layout. */}
+        <div className="grid w-full grid-cols-[minmax(0,1fr)] [transform-style:preserve-3d]">
           {labels.map((label, i) => {
             // Distance back in the stack: 0 is the front card.
             const depth = (i - activeIndex + total) % total;
