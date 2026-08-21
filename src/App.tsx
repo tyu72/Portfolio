@@ -23,10 +23,13 @@ export default function App() {
           color="#6f74e8"
           variant="square"
           pixelSize={3}
-          patternScale={2}
-          patternDensity={1}
+          patternScale={5.5}
+          patternDensity={0.9}
+          pixelSizeJitter={1.1}
           speed={0.5}
-          edgeFade={0.5}
+          edgeFade={0.19}
+          enableRipples
+          liquid={false}
           transparent
         />
       </div>
