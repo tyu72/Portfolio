@@ -8,7 +8,7 @@ export const NAV_LINKS: NavLink[] = [
 
 export const CONTACT_CTA: NavLink = { label: 'Contact', href: '/contact' };
 
-export const BRAND = { name: 'tonyyu', tld: 'dev' };
+export const BRAND = { name: 'yutony', tld: 'dev' };
 
 export type SocialLink = { label: string; href: string; external: boolean };
 
@@ -19,7 +19,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export const FOOTER = {
-  copyright: '© 2026 Tony Yu — built with way too much coffee.',
+  copyright: '© 2026 Tony Yu',
   links: [
     { label: 'GitHub', href: 'https://github.com/tyu72' },
     { label: 'Email', href: 'mailto:yutony115@gmail.com' },

@@ -82,7 +82,7 @@ const caption = Buffer.from(
            letter-spacing="4" fill="${INK}">TONY YU</text>
      <text x="${FACE_W / 2}" y="${BACK_H - 54}" text-anchor="middle"
            font-family="Verdana, DejaVu Sans, sans-serif" font-size="30"
-           letter-spacing="3" fill="#5B8CFF">tonyyu.dev</text>
+           letter-spacing="3" fill="#5B8CFF">yutony.dev</text>
    </svg>`
 );
 

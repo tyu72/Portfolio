@@ -48,22 +48,44 @@ const CARD_HIT_RADIUS = 1.35;
 const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.7572 };
 const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.7572 };
 
-// Pans the camera sideways so the rig hangs a fixed distance from the canvas's
-// right edge. This lets the canvas span the full page width — giving the card
-// room to swing without clipping — while the card still hangs from a specific
-// spot, and it stays put as the viewport resizes.
-function CameraRig({ anchorRightPx }: { anchorRightPx?: number | null }) {
+/** Height of the card in world units (its collider is 0.8 x 1.125 half-extents). */
+const CARD_WORLD_HEIGHT = 2.25;
+
+// Drives the camera imperatively rather than through <Canvas camera={...}>,
+// which R3F only applies when the camera is first created — changing that prop
+// later silently does nothing, so the card's size would drift with the canvas.
+//
+// - cardHeightPx pins the card's on-screen height by solving for the camera
+//   distance, so resizing the canvas cannot change how big the card looks.
+// - anchorRightPx pans the camera sideways so the rig hangs a fixed distance
+//   from the canvas's right edge, letting the canvas span the full page (room
+//   to swing) while the card still hangs from one specific spot.
+function CameraRig({
+  cardHeightPx,
+  anchorRightPx
+}: {
+  cardHeightPx?: number | null;
+  anchorRightPx?: number | null;
+}) {
   const { camera, size } = useThree();
 
   useEffect(() => {
-    if (anchorRightPx == null) return;
     const cam = camera as THREE.PerspectiveCamera;
-    const worldHeight = 2 * Math.tan((cam.fov * Math.PI) / 180 / 2) * cam.position.z;
-    const unitsPerPx = worldHeight / size.height;
-    const targetFromLeft = size.width - anchorRightPx;
-    cam.position.x = -(targetFromLeft - size.width / 2) * unitsPerPx;
+    const halfFovTan = Math.tan((cam.fov * Math.PI) / 180 / 2);
+
+    if (cardHeightPx != null && cardHeightPx > 0) {
+      cam.position.z = (CARD_WORLD_HEIGHT * size.height) / (2 * halfFovTan * cardHeightPx);
+    }
+
+    if (anchorRightPx != null) {
+      const worldHeight = 2 * halfFovTan * cam.position.z;
+      const unitsPerPx = worldHeight / size.height;
+      const targetFromLeft = size.width - anchorRightPx;
+      cam.position.x = -(targetFromLeft - size.width / 2) * unitsPerPx;
+    }
+
     cam.updateProjectionMatrix();
-  }, [camera, size.width, size.height, anchorRightPx]);
+  }, [camera, size.width, size.height, cardHeightPx, anchorRightPx]);
 
   return null;
 }
@@ -75,6 +97,8 @@ interface LanyardProps {
   transparent?: boolean;
   /** Distance in px from the canvas's right edge to hang the rig from. */
   anchorRightPx?: number | null;
+  /** Pins the card's rendered height in px, independent of canvas size. */
+  cardHeightPx?: number | null;
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
@@ -88,6 +112,7 @@ export default function Lanyard({
   fov = 20,
   transparent = true,
   anchorRightPx = null,
+  cardHeightPx = null,
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
@@ -119,7 +144,7 @@ export default function Lanyard({
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
         <ambientLight intensity={Math.PI} />
-        <CameraRig anchorRightPx={anchorRightPx} />
+        <CameraRig cardHeightPx={cardHeightPx} anchorRightPx={anchorRightPx} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
           <Band
             isMobile={isMobile}

@@ -26,13 +26,12 @@ export default function Home() {
           rendered page. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-30 hidden h-[900px] lg:block">
         <div className="pointer-events-none h-full w-full">
-          {/* Camera z sets the card's on-screen size: smaller z = bigger card.
-              At z=22 in a 900px-tall canvas the card renders ~260px tall, and
-              the rig's world y=4 anchor sits just above the frustum, so the
-              strap runs off the top and reads as hanging from under the nav. */}
+          {/* cardHeightPx pins the card's rendered height, so resizing the
+              canvas no longer changes how big it looks — the camera distance is
+              solved for instead. */}
           <Lanyard
-            position={[0, 0, 22]}
             gravity={[0, -40, 0]}
+            cardHeightPx={255}
             anchorRightPx={333}
             frontImage={cardFront}
             backImage={cardBack}
