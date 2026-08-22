@@ -31,8 +31,6 @@ export const HERO = {
   name: 'Tony Yu',
   tagline:
     'CS + game design student who likes building things end to end — now figuring out how to turn "I made this" into "people actually want this."',
-  primaryCta: { label: 'See my work →', href: '/projects' },
-  secondaryCta: { label: 'Get in touch', href: '/contact' },
 };
 
 export type Tag = string;
@@ -67,12 +65,6 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
     href: '/projects',
   },
 ];
-
-export const ABOUT_BANNER = {
-  heading: 'Want the longer story?',
-  body: 'Background, skills, and a resume — all on one page.',
-  cta: { label: 'About me →', href: '/about' },
-};
 
 export type ProjectDemo =
   | {
