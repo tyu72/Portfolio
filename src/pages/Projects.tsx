@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import FoldText from '../components/FoldText/FoldText';
 import TagPill from '../components/TagPill';
 import CardDeck from '../components/CardDeck/CardDeck';
@@ -242,8 +243,30 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
   );
 }
 
+/** Index of the project named by ?project=<slug>, or 0 when absent or unknown. */
+function indexForSlug(slug: string | null) {
+  const i = PROJECTS.findIndex((project) => project.slug === slug);
+  return i === -1 ? 0 : i;
+}
+
 export default function Projects() {
-  const [active, setActive] = useState(0);
+  // The featured cards on the home page link to one specific project, so the
+  // deck has to open on that card rather than always on the first one.
+  const [searchParams] = useSearchParams();
+  const requestedSlug = searchParams.get('project');
+  // Seeded from the URL, so the right card is already front on the first paint
+  // instead of flicking over from card one.
+  const [active, setActive] = useState(() => indexForSlug(requestedSlug));
+
+  // Adjusted during render rather than in an effect: the slug only changes when
+  // you arrive from a different link, and reacting to it here avoids painting
+  // the old card first. Comparing against the last slug we acted on is what
+  // keeps this from fighting you as you flip through the deck by hand.
+  const [appliedSlug, setAppliedSlug] = useState(requestedSlug);
+  if (requestedSlug !== appliedSlug) {
+    setAppliedSlug(requestedSlug);
+    if (requestedSlug) setActive(indexForSlug(requestedSlug));
+  }
 
   return (
     <div>

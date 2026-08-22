@@ -56,7 +56,7 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
     description:
       'A strength-training log that reads your own data and tells you when a lift has stalled, and why.',
     tags: ['React', 'Supabase', 'Claude API'],
-    href: '/projects',
+    href: '/projects?project=strengthai',
   },
   {
     slug: 'bubblemage',
@@ -64,7 +64,7 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
     title: 'BubbleMage',
     description: 'A slime alchemy game built in Unity with a five-person team, headed to Steam.',
     tags: ['Unity', 'C#', 'Team project'],
-    href: '/projects',
+    href: '/projects?project=bubblemage',
   },
 ];
 

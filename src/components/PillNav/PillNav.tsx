@@ -41,6 +41,10 @@ const PillNav: React.FC<PillNavProps> = ({
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement | null>(null);
   const navItemsRef = useRef<HTMLDivElement | null>(null);
+  // The intro plays once per mount. The layout effect re-runs whenever the
+  // items change, and replaying the reveal on a route change dragged the pills
+  // sideways under a stationary cursor, firing hover on each one it passed.
+  const introPlayedRef = useRef(false);
 
   useEffect(() => {
     const layout = () => {
@@ -106,10 +110,11 @@ const PillNav: React.FC<PillNavProps> = ({
       gsap.set(menu, { visibility: 'hidden', opacity: 0, scaleY: 1, y: 0 });
     }
 
-    if (initialLoadAnimation) {
+    if (initialLoadAnimation && !introPlayedRef.current) {
       const navItems = navItemsRef.current;
 
       if (navItems) {
+        introPlayedRef.current = true;
         // Measure first, then animate to that pixel width and hand control back
         // to the stylesheet on completion. Animating to 'auto' left the pills
         // collapsed: GSAP resolves the target when the tween starts, and the

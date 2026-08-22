@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS, CONTACT_CTA, BRAND } from '../lib/content';
 import PillNav from './PillNav/PillNav';
@@ -6,10 +7,13 @@ export default function Nav() {
   const { pathname } = useLocation();
 
   // Contact was a separate CTA button; as a pill it belongs with the rest.
-  const items = [...NAV_LINKS, CONTACT_CTA].map((link) => ({
-    label: link.label,
-    href: link.href
-  }));
+  // Memoised because PillNav keys its layout effect on this array. Rebuilding
+  // it on every render meant each navigation looked like new items and replayed
+  // the intro animation, sliding the pills out from under the cursor.
+  const items = useMemo(
+    () => [...NAV_LINKS, CONTACT_CTA].map((link) => ({ label: link.label, href: link.href })),
+    []
+  );
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-bg/90 px-6 py-4 backdrop-blur-md sm:px-10 lg:px-16">
