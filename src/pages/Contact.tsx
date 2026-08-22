@@ -36,7 +36,7 @@ export default function Contact() {
     // Padding scales with viewport height so this page fits on screen without
     // scrolling — there is little enough on it that a scrollbar is just noise.
     return (
-      <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
+      <section className="mx-auto flex w-full max-w-[760px] flex-1 flex-col justify-center px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
         {/* The stroke line says it on its own — the follow-up sentence
             underneath repeated it almost word for word. */}
         <div className="flex justify-center rounded-[20px] bg-panel p-8">
@@ -59,7 +59,7 @@ export default function Contact() {
   }
 
   return (
-    <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
+    <section className="mx-auto flex w-full max-w-[760px] flex-1 flex-col justify-center px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
       {/* Kept inside an h1 so the page still has a heading in its outline —
           FoldText renders spans. */}
       <h1 className="mb-4">

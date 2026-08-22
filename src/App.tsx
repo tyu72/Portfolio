@@ -40,7 +40,9 @@ export default function App() {
           showing beneath it. */}
       <div className="relative z-10 flex min-h-screen flex-col">
         <Nav />
-        <main className="flex-1">
+        {/* A column, so a page can opt into filling the leftover height with
+            flex-1 — the contact page uses that to centre itself. */}
+        <main className="flex flex-1 flex-col">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/projects" element={<Projects />} />
