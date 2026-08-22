@@ -69,7 +69,10 @@ export default function About() {
       </ScrollReveal>
 
       <section className="mx-auto max-w-[1100px] px-[clamp(24px,6vw,80px)] pb-[130px]">
-        <div className="flex flex-wrap items-center justify-between gap-6 rounded-3xl bg-panel p-[clamp(32px,5vw,48px)]">
+        <SpotlightCard
+          className="flex flex-wrap items-center justify-between gap-6 rounded-3xl bg-panel p-[clamp(32px,5vw,48px)]"
+          spotlightColor="rgba(111, 116, 232, 0.45)"
+        >
           <div>
             <h2 className="mb-2 font-sans text-xl font-extrabold text-panel-ink">{ABOUT.resume.heading}</h2>
             <p className="font-sans text-sm text-panel-ink/80">{ABOUT.resume.body}</p>
@@ -83,7 +86,7 @@ export default function About() {
           >
             {ABOUT.resume.cta.label}
           </a>
-        </div>
+        </SpotlightCard>
       </section>
     </div>
   );
