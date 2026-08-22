@@ -34,9 +34,13 @@ export default function App() {
         />
       </div>
 
-      <div className="relative z-10">
+      {/* A column at least a screen tall, with the routed page taking up the
+          slack. Short pages — the contact form's success state especially —
+          otherwise leave the footer partway up the screen with background
+          showing beneath it. */}
+      <div className="relative z-10 flex min-h-screen flex-col">
         <Nav />
-        <main>
+        <main className="flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/projects" element={<Projects />} />

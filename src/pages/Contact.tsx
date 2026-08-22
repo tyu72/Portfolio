@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { CONTACT, SOCIAL_LINKS } from '../lib/content';
 import FoldText from '../components/FoldText/FoldText';
+import StrokeText from '../components/StrokeText/StrokeText';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -35,9 +36,22 @@ export default function Contact() {
     return (
       <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(70px,10vh,110px)]">
         <div className="rounded-[20px] bg-panel p-8 text-center">
-          <div className="mb-3 text-3xl">✓</div>
-          <p className="mb-1.5 font-sans text-[17px] font-bold text-panel-ink">{CONTACT.successHeading}</p>
-          <p className="font-sans text-sm text-panel-ink/80">{CONTACT.successBody}</p>
+          <div className="flex justify-center">
+            <StrokeText
+              text="Talk to you soon"
+              stagger={0.09}
+              strokeWidth={1.2}
+              // Stroke picks up the same purple as the background pixels and
+              // the card spotlights; the fill is the panel's own text colour.
+              strokeColor="#6f74e8"
+              fillColor="#f2f4fb"
+              fontSize={54}
+              letterSpacing={-1}
+              trigger="mount"
+              className="font-sans"
+            />
+          </div>
+          <p className="mt-2 font-sans text-sm text-panel-ink/80">{CONTACT.successBody}</p>
         </div>
       </section>
     );
