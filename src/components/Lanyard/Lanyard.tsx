@@ -22,6 +22,20 @@ import lanyard from './lanyard.png';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
+// Warm the model and textures at import time, so arriving at the page that uses
+// them does not wait on a fetch and parse.
+useGLTF.preload(cardGLB);
+
+/**
+ * Composited card textures, kept across mounts.
+ *
+ * Building one draws the card's whole 1678x1677 atlas plus both face images and
+ * uploads the result to the GPU. Leaving that inside the component redoes all
+ * of it every time the page is revisited, which is the bulk of the pause on
+ * navigating back. Keyed by the inputs, so different art still gets its own.
+ */
+const cardMapCache = new Map<string, THREE.CanvasTexture>();
+
 declare module '@react-three/fiber' {
   interface ThreeElements {
     meshLineGeometry: ThreeElement<typeof MeshLineGeometry>;
@@ -170,7 +184,11 @@ export default function Lanyard({
             dropTilt={dropTilt}
           />
         </Physics>
-        <Environment blur={0.75}>
+        {/* Low resolution on purpose. This builds a prefiltered cubemap on every
+            mount, and with the card unlit the map only lights the small metal
+            clip — full resolution buys nothing visible and costs time on each
+            return to the page. */}
+        <Environment blur={0.75} resolution={64}>
           <Lightformer
             intensity={2}
             color="white"
@@ -300,6 +318,10 @@ function Band({
     const baseMap = materials.base.map as THREE.Texture;
     if (!frontImage && !backImage) return baseMap;
 
+    const cacheKey = `${frontImage}|${backImage}|${imageFit}`;
+    const cached = cardMapCache.get(cacheKey);
+    if (cached) return cached;
+
     const baseImg = baseMap.image as any;
     const W = baseImg.width;
     const H = baseImg.height;
@@ -338,6 +360,7 @@ function Band({
     composite.flipY = baseMap.flipY;
     composite.anisotropy = 16;
     composite.needsUpdate = true;
+    cardMapCache.set(cacheKey, composite);
     return composite;
   }, [frontImage, backImage, imageFit, frontTex, backTex, materials.base.map]);
   const [curve] = useState(
