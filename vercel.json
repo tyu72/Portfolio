@@ -1,10 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "comment": "The build emits a single index.html, but the app routes /projects, /about and /contact on the client. Without this, loading or refreshing those URLs directly asks the server for a file that does not exist and returns 404. Rewrites run after the filesystem check, so real assets still serve normally.",
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
