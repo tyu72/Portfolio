@@ -122,6 +122,34 @@ await sharp(
 
 console.log(`strap-ty.png    ${STRAP_W}x${STRAP_H}`);
 
+// ---------- favicon ----------
+// A TY monogram, black on the site's purple. Rendered to PNG rather than
+// shipped as SVG so the glyphs are baked in and cannot shift with whatever
+// fonts a browser happens to have when it draws the tab icon.
+const PUB = new URL('../public/', import.meta.url);
+const ICON_RES = 512;
+const ICON_BG = '#6f74e8'; // the same purple as the pixels and card spotlights
+const ICON_FG = '#000000';
+
+const iconTile = Buffer.from(
+  `<svg width="${ICON_RES}" height="${ICON_RES}" xmlns="http://www.w3.org/2000/svg">
+     <rect width="${ICON_RES}" height="${ICON_RES}" rx="${ICON_RES * 0.22}" fill="${ICON_BG}"/>
+     <text x="50%" y="53%" text-anchor="middle" dominant-baseline="central"
+           font-family="Verdana, DejaVu Sans, sans-serif"
+           font-size="${ICON_RES * 0.46}" font-weight="bold"
+           letter-spacing="${ICON_RES * 0.012}" fill="${ICON_FG}">TY</text>
+   </svg>`
+);
+
+for (const [file, size] of [
+  ['favicon.png', 64],
+  ['apple-touch-icon.png', 180]
+]) {
+  // Drawn large and scaled down, so the edges land smooth at icon sizes.
+  await sharp(iconTile).resize(size, size).png().toFile(p(new URL(file, PUB)));
+  console.log(`${file.padEnd(20)} ${size}x${size}`);
+}
+
 // ---------- about page headshot ----------
 const aboutOut = p(new URL('about-headshot.jpg', SRC));
 const meta = await sharp(p(new URL('about me image.jpg', SRC))).metadata();
