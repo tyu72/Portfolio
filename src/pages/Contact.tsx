@@ -37,23 +37,22 @@ export default function Contact() {
     // scrolling — there is little enough on it that a scrollbar is just noise.
     return (
       <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
-        <div className="rounded-[20px] bg-panel p-8 text-center">
-          <div className="flex justify-center">
-            <StrokeText
-              text="Talk to you soon"
-              stagger={0.09}
-              strokeWidth={1.2}
-              // Stroke picks up the same purple as the background pixels and
-              // the card spotlights; the fill is the panel's own text colour.
-              strokeColor="#6f74e8"
-              fillColor="#f2f4fb"
-              fontSize={54}
-              letterSpacing={-1}
-              trigger="mount"
-              className="font-sans"
-            />
-          </div>
-          <p className="mt-2 font-sans text-sm text-panel-ink/80">{CONTACT.successBody}</p>
+        {/* The stroke line says it on its own — the follow-up sentence
+            underneath repeated it almost word for word. */}
+        <div className="flex justify-center rounded-[20px] bg-panel p-8">
+          <StrokeText
+            text="Talk to you soon!"
+            stagger={0.09}
+            strokeWidth={1.2}
+            // Stroke picks up the same purple as the background pixels and
+            // the card spotlights; the fill is the panel's own text colour.
+            strokeColor="#6f74e8"
+            fillColor="#f2f4fb"
+            fontSize={54}
+            letterSpacing={-1}
+            trigger="mount"
+            className="font-sans"
+          />
         </div>
       </section>
     );
