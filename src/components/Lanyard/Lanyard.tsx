@@ -38,28 +38,28 @@ const BLANK_PIXEL =
 // atlas and the back face to the RIGHT half (measured from card.glb). Each
 // custom image is composited into its own half so the two faces render
 // independently, aspect-preserving (no stretching).
-// 0.7572 is the card mesh's real maximum V (read from card.glb's TEXCOORD_0);
-// the shipped 0.755/0.757 stopped just short and left a thin strip of the
-// original texture showing along the bottom of each face.
-// Radius in world units treated as "over the card" for pointer hit-testing.
-// The card's collider is 0.8 x 1.125, so this covers it with a little slack.
-const CARD_HIT_RADIUS = 1.35;
-
+// 0.7572 is the card mesh's real maximum V, read from card.glb's TEXCOORD_0.
+// The shipped 0.755/0.757 stop just short and leave a thin strip of the
+// original texture along the bottom of each face.
 const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.7572 };
 const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.7572 };
 
-/** Height of the card in world units (its collider is 0.8 x 1.125 half-extents). */
+/** Radius in world units treated as "over the card" for pointer hit-testing. */
+const CARD_HIT_RADIUS = 1.35;
+
+/** Height of the card in world units — its collider is 0.8 x 1.125 half-extents. */
 const CARD_WORLD_HEIGHT = 2.25;
 
-// Drives the camera imperatively rather than through <Canvas camera={...}>,
-// which R3F only applies when the camera is first created — changing that prop
-// later silently does nothing, so the card's size would drift with the canvas.
-//
-// - cardHeightPx pins the card's on-screen height by solving for the camera
-//   distance, so resizing the canvas cannot change how big the card looks.
-// - anchorRightPx pans the camera sideways so the rig hangs a fixed distance
-//   from the canvas's right edge, letting the canvas span the full page (room
-//   to swing) while the card still hangs from one specific spot.
+/**
+ * Drives the camera imperatively rather than through <Canvas camera={...}>,
+ * which R3F only applies when the camera is first created — changing that prop
+ * later silently does nothing, so the card's size would drift with the canvas.
+ *
+ * cardHeightPx pins the card's on-screen height by solving for the camera
+ * distance; anchorRightPx pans sideways so the rig hangs a fixed distance from
+ * the canvas's right edge, letting the canvas span the page without the card
+ * moving with it.
+ */
 function CameraRig({
   cardHeightPx,
   anchorRightPx
@@ -78,10 +78,8 @@ function CameraRig({
     }
 
     if (anchorRightPx != null) {
-      const worldHeight = 2 * halfFovTan * cam.position.z;
-      const unitsPerPx = worldHeight / size.height;
-      const targetFromLeft = size.width - anchorRightPx;
-      cam.position.x = -(targetFromLeft - size.width / 2) * unitsPerPx;
+      const unitsPerPx = (2 * halfFovTan * cam.position.z) / size.height;
+      cam.position.x = -(size.width - anchorRightPx - size.width / 2) * unitsPerPx;
     }
 
     cam.updateProjectionMatrix();
@@ -95,26 +93,23 @@ interface LanyardProps {
   gravity?: [number, number, number];
   fov?: number;
   transparent?: boolean;
-  /** Distance in px from the canvas's right edge to hang the rig from. */
-  anchorRightPx?: number | null;
-  /** Pins the card's rendered height in px, independent of canvas size. */
-  cardHeightPx?: number | null;
-  /** Length of each of the strap's three segments, in world units. */
-  ropeSegmentLength?: number;
-  /** World length of one repeat of the strap print. Larger = fewer, longer tiles. */
-  strapTileLength?: number;
-  /**
-   * Fraction of its resting length the rig starts gathered to, giving it a drop
-   * on load. 1 starts already at rest (no drop); lower drops from higher up.
-   */
-  dropFrom?: number;
-  /** Degrees off vertical the rig starts at, giving the drop a swing. */
-  dropTilt?: number;
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
   lanyardImage?: string | null;
   lanyardWidth?: number;
+  /** Pins the card's rendered height in px, independent of canvas size. */
+  cardHeightPx?: number | null;
+  /** Distance in px from the canvas's right edge to hang the rig from. */
+  anchorRightPx?: number | null;
+  /** Length of each of the strap's three segments, in world units. */
+  ropeSegmentLength?: number;
+  /** World length of one repeat of the strap print. */
+  strapTileLength?: number;
+  /** Fraction of its resting length the rig starts at, giving it a drop on load. */
+  dropFrom?: number;
+  /** Degrees off vertical the rig starts at, giving the drop a swing. */
+  dropTilt?: number;
 }
 
 export default function Lanyard({
@@ -122,17 +117,17 @@ export default function Lanyard({
   gravity = [0, -40, 0],
   fov = 20,
   transparent = true,
-  anchorRightPx = null,
-  cardHeightPx = null,
-  ropeSegmentLength = 1,
-  strapTileLength = 0.8,
-  dropFrom = 0.55,
-  dropTilt = 16,
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 1
+  lanyardWidth = 1,
+  cardHeightPx = null,
+  anchorRightPx = null,
+  ropeSegmentLength = 1,
+  strapTileLength = 0.8,
+  dropFrom = 0.55,
+  dropTilt = 16
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
@@ -143,17 +138,18 @@ export default function Lanyard({
   }, []);
 
   return (
+    // h-full, not h-screen: this hangs in a corner of the page rather than
+    // owning the viewport.
     <div className="relative h-full w-full flex justify-center items-center transform scale-100 origin-center">
       <Canvas
         camera={{ position, fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
-        // `flat` disables tone mapping. R3F defaults to ACES Filmic, a
-        // cinematic curve that desaturates and rolls off highlights — on a
-        // photographic card face that reads as a colour filter over the photo.
-        // With NoToneMapping the texture renders at its true colours.
+        // flat disables tone mapping. R3F defaults to ACES Filmic, which
+        // desaturates and rolls off highlights — on a photographic card that
+        // reads as a colour filter over the photo.
         flat
-        // The container must not capture pointer events — the canvas child
-        // re-enables them for itself only while the pointer is over the card.
+        // The container must not capture pointer events; the canvas re-enables
+        // them for itself only while the pointer is over the card (see Band).
         style={{ pointerEvents: 'none' }}
         gl={{ alpha: transparent }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
@@ -262,6 +258,27 @@ function Band({
     linearDamping: 4
   };
 
+  // Starting position for a body hanging `depth` along the strap: gathered
+  // toward the anchor so it has somewhere to fall from, and leaned off vertical
+  // so it swings on the way down.
+  const startAt = (depth: number): [number, number, number] => {
+    const tilt = (dropTilt * Math.PI) / 180;
+    const reach = depth * dropFrom;
+    return [reach * Math.sin(tilt), -reach * Math.cos(tilt), 0];
+  };
+
+  // Where the pointer is, tracked on window: the canvas spends most of its life
+  // with pointer events disabled, so it cannot report this itself.
+  const pointerPx = useRef({ x: -1e4, y: -1e4 });
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      pointerPx.current.x = e.clientX;
+      pointerPx.current.y = e.clientY;
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
+
   const getLerped = (body: LanyardRigidBody): THREE.Vector3 => {
     if (!body.lerped) {
       body.lerped = new THREE.Vector3().copy(body.translation());
@@ -330,10 +347,6 @@ function Band({
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
 
-  // Three equal segments make up the strap, so the card hangs
-  // 3 * ropeSegmentLength below the anchor, plus the 1.45 spherical-joint drop
-  // to the card's centre and its 1.125 half-height. Shortening these raises the
-  // card and shortens the visible strap.
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], ropeSegmentLength]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], ropeSegmentLength]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], ropeSegmentLength]);
@@ -351,32 +364,9 @@ function Band({
     }
   }, [hovered, dragged]);
 
-  // Starting position for a body hanging `depth` along the strap: gathered
-  // toward the anchor so it has somewhere to fall from, and leaned off vertical
-  // so it swings on the way down.
-  const startAt = (depth: number): [number, number, number] => {
-    const tilt = (dropTilt * Math.PI) / 180;
-    const reach = depth * dropFrom;
-    return [reach * Math.sin(tilt), -reach * Math.cos(tilt), 0];
-  };
-
-  // Where the pointer is, tracked on window rather than on the canvas: the
-  // canvas spends most of its life with pointer-events disabled (below), so it
-  // cannot report this itself.
-  const pointerPx = useRef({ x: -1e4, y: -1e4 });
-  useEffect(() => {
-    const onMove = (e: PointerEvent) => {
-      pointerPx.current.x = e.clientX;
-      pointerPx.current.y = e.clientY;
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => window.removeEventListener('pointermove', onMove);
-  }, []);
-
   // The canvas spans the page so the card can swing freely, which would
-  // otherwise make everything beneath it unclickable. So enable pointer events
-  // only while the pointer is actually over the card (or mid-drag) and let
-  // every other pixel fall through to the page.
+  // otherwise make everything beneath it unclickable. Enable pointer events
+  // only while the pointer is over the card, or mid-drag.
   const updatePointerPassthrough = (state: { gl: THREE.WebGLRenderer; camera: THREE.Camera }) => {
     const el = state.gl.domElement;
     if (dragged) {
@@ -394,7 +384,6 @@ function Band({
     const cx = rect.left + (centre.x * 0.5 + 0.5) * rect.width;
     const cy = rect.top + (-centre.y * 0.5 + 0.5) * rect.height;
     const radiusPx = Math.abs(edge.x - centre.x) * 0.5 * rect.width;
-
     const dx = pointerPx.current.x - cx;
     const dy = pointerPx.current.y - cy;
     el.style.pointerEvents = dx * dx + dy * dy <= radiusPx * radiusPx ? 'auto' : 'none';
@@ -427,14 +416,15 @@ function Band({
       const points = curve.getPoints(isMobile ? 16 : 32);
       band.current.geometry.setPoints(points);
 
-      // Tile the strap print by its actual length rather than a fixed count.
-      // meshline maps u across 0..1 of the whole line, so a constant repeat
-      // squeezes the print when the strap hangs short and spreads it as the
-      // strap is pulled — which is why it only looked right while stretched.
+      // Tile the strap print by its actual length. meshline maps u across the
+      // whole line, so upstream's fixed repeat squeezes the print when the
+      // strap hangs short and spreads it as it is pulled.
       let strapLength = 0;
       for (let i = 1; i < points.length; i++) strapLength += points[i].distanceTo(points[i - 1]);
-      const bandMaterial = band.current.material as InstanceType<typeof MeshLineMaterial>;
-      bandMaterial.repeat.set(-strapLength / strapTileLength, 1);
+      (band.current.material as InstanceType<typeof MeshLineMaterial>).repeat.set(
+        -strapLength / strapTileLength,
+        1
+      );
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
@@ -448,12 +438,10 @@ function Band({
     <>
       <group position={[0, 4, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        {/* Start the rig gathered toward the anchor (dropFrom) and leaning a
-            little off vertical (dropTilt), so on load it falls into place and
-            swings gently to a stop. These shipped spread along +X, which
-            started the lanyard fully horizontal and whipped it down through a
-            90° swing — the glitch on refresh. A small lean gives the same kind
-            of motion at an amplitude the joint damping settles smoothly. */}
+        {/* Upstream starts these spread along +X, so the rig begins horizontal
+            and gravity whips it down through 90° on load. startAt begins it
+            gathered and leaning slightly, which drops it in with a small swing
+            the joint damping settles smoothly. */}
         <RigidBody position={startAt(ropeSegmentLength)} ref={j1} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
@@ -485,13 +473,11 @@ function Band({
             }}
           >
             <mesh geometry={nodes.card.geometry}>
-              {/* Unlit on purpose. Any lit material modulates the map by the
-                  scene's lighting — ambient plus environment IBL — so a
-                  photograph on the card never matches the file it came from,
-                  and the dark rims came from the same place. meshBasicMaterial
-                  samples the texture directly, so the card face renders exactly
-                  as imported. Swap back to meshPhysicalMaterial (metalness 0)
-                  if shading on the card is ever worth the colour shift. */}
+              {/* Unlit on purpose. A lit material modulates the map by the
+                  scene's lighting, so a photograph on the card never matches
+                  the file it came from — and upstream's metalness of 0.8 left
+                  the edges reflecting an environment that is four lightformers
+                  on black, which read as dark rims. */}
               <meshBasicMaterial map={cardMap} map-anisotropy={16} toneMapped={false} />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
@@ -502,6 +488,9 @@ function Band({
       <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
+          // Two changes upstream needs to build under this project's strict TS:
+          // the constructor args are required, and useMap is typed as a number
+          // rather than a boolean flag.
           args={[{ resolution: new THREE.Vector2(1000, isMobile ? 2000 : 1000) }]}
           color="white"
           depthTest={false}
