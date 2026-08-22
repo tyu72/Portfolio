@@ -21,6 +21,8 @@ export const FOOTER = {
   copyright: '© 2026 Tony Yu',
   links: [
     { label: 'GitHub', href: 'https://github.com/tyu72' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/yutony03/' },
+    { label: 'Instagram', href: 'https://instagram.com/yu.tonyy' },
     { label: 'Email', href: 'mailto:yutony115@gmail.com' },
   ],
 };
