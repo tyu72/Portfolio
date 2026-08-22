@@ -32,7 +32,7 @@ export const HERO_ROLES = ['PRODUCT MANAGER', 'GAME DESIGNER', 'BUILDER', 'PROBL
 export const HERO = {
   name: 'Tony Yu',
   tagline:
-    'CS + game design student who likes building things end to end — now figuring out how to turn "I made this" into "people actually want this."',
+    'CS + game design student who likes building things end to end, now figuring out how to turn "I made this" into "people actually want this."',
 };
 
 export type Tag = string;
@@ -54,7 +54,7 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
     status: { label: 'WEB APP · LIVE', accentClass: 'text-accent' },
     title: 'StrengthAI',
     description:
-      'A strength-training log that reads your own data and tells you when a lift has stalled — and why.',
+      'A strength-training log that reads your own data and tells you when a lift has stalled, and why.',
     tags: ['React', 'Supabase', 'Claude API'],
     href: '/projects',
   },
@@ -116,7 +116,7 @@ export const PROJECTS: ProjectDetail[] = [
     status: { label: 'LIVE · WEB APP', accentClass: 'text-live', dot: true },
     title: 'StrengthAI',
     description:
-      "A strength-training log that reads your own data and tells you when a lift has stalled, and why. No exercise database, no dropdowns — you describe a lift in your own words and it becomes a trend line. It watches reps-in-reserve at matched weight and reps to flag real plateaus instead of noise, and a coach chat answers questions using only numbers you've actually logged, never fabricated ones.",
+      "A strength-training log that reads your own data and tells you when a lift has stalled, and why. No exercise database, no dropdowns: you describe a lift in your own words and it becomes a trend line. It watches reps-in-reserve at matched weight and reps to flag real plateaus instead of noise, and a coach chat answers questions using only numbers you've actually logged, never fabricated ones.",
     tags: ['React', 'Vite', 'Supabase', 'Claude API', 'PWA'],
     links: [
       { label: 'Try it live ↗', href: 'https://strength-ai.vercel.app' },
@@ -126,7 +126,7 @@ export const PROJECTS: ProjectDetail[] = [
       type: 'iframe',
       src: 'https://strength-ai.vercel.app',
       fallbackHref: 'https://strength-ai.vercel.app',
-      note: 'LIVE DEMO — free to sign up and try',
+      note: 'LIVE DEMO: free to sign up and try',
     },
   },
   {
@@ -150,7 +150,7 @@ export const PROJECTS: ProjectDetail[] = [
     status: { label: 'PLAYABLE · BROWSER GAME', accentClass: 'text-live', dot: true },
     title: 'Space Drift',
     description:
-      'An arcade dodger built in Phaser: steer a ship through falling asteroids and grab fuel to trigger nitro, which makes you briefly immune — and stacks if you collect more while it is already running. Every 15 seconds the asteroids get faster and more numerous, so a run is a question of how long you can keep up. The sprites and backgrounds are hand-drawn.',
+      'An arcade dodger built in Phaser: steer a ship through falling asteroids and grab fuel to trigger nitro, which makes you briefly immune, and stacks if you collect more while it is already running. Every 15 seconds the asteroids get faster and more numerous, so a run is a question of how long you can keep up. The sprites and backgrounds are hand-drawn.',
     tags: ['Phaser', 'JavaScript', 'Game design', 'Solo project'],
     links: [
       { label: 'Play full screen ↗', href: 'https://tyu72.github.io/Space-Drift/' },
@@ -160,7 +160,7 @@ export const PROJECTS: ProjectDetail[] = [
       type: 'iframe',
       src: 'https://tyu72.github.io/Space-Drift/',
       fallbackHref: 'https://tyu72.github.io/Space-Drift/',
-      note: 'PLAY IT HERE — press play, then click the game to use the keyboard',
+      note: 'PLAY IT HERE: press play, then click the game to use the keyboard',
       naturalWidth: 800,
       naturalHeight: 600,
       // This page resets body margin to 0, so nothing needs cropping.
@@ -172,7 +172,7 @@ export const PROJECTS: ProjectDetail[] = [
     status: { label: 'PLAYABLE · BROWSER GAME', accentClass: 'text-live', dot: true },
     title: 'Typing Tutor Turbo',
     description:
-      'A typing game built in Phaser with Michael Xi. Words stack up and you pick one with the arrow keys, then clear it letter by letter — but hollow letters are shielded and take several hits, shields regenerate while you work, and a letter you type can count toward other words on screen. Built to make drilling accuracy feel like an arcade run rather than a lesson.',
+      'A typing game built in Phaser with Michael Xi. Words stack up and you pick one with the arrow keys, then clear it letter by letter, but hollow letters are shielded and take several hits, shields regenerate while you work, and a letter you type can count toward other words on screen. Built to make drilling accuracy feel like an arcade run rather than a lesson.',
     tags: ['Phaser', 'JavaScript', 'Game design', 'Two-person team'],
     links: [
       { label: 'Play full screen ↗', href: 'https://xismichael.github.io/typingTutorTurbo/' },
@@ -182,7 +182,7 @@ export const PROJECTS: ProjectDetail[] = [
       type: 'iframe',
       src: 'https://xismichael.github.io/typingTutorTurbo/',
       fallbackHref: 'https://xismichael.github.io/typingTutorTurbo/',
-      note: 'PLAY IT HERE — press play, then click the game to use the keyboard',
+      note: 'PLAY IT HERE: press play, then click the game to use the keyboard',
       naturalWidth: 1500,
       naturalHeight: 1000,
       // This page sets no margin reset, so it inherits the browser default 8px.
@@ -194,7 +194,7 @@ export const PROJECTS: ProjectDetail[] = [
 export const ABOUT = {
   bio: [
     "I'm a computer science and game design major who likes taking things from a blank file to something people can actually use. That's meant building web apps, writing gameplay systems in Unity, and lately spending more time thinking about why people click what they click than how the code works underneath.",
-    "Right now I'm aiming toward product management — I like being close enough to the code to know what's actually hard to build, and close enough to the user to know what's actually worth building.",
+    "Right now I'm aiming toward product management. I like being close enough to the code to know what's actually hard to build, and close enough to the user to know what's actually worth building.",
   ],
   // Served straight from public/, so the URL stays clean and stable rather
   // than being content-hashed by the bundler.
@@ -223,7 +223,5 @@ export const SKILL_GROUPS: SkillGroup[] = [
 export const CONTACT = {
   heading: "Let's talk",
   body: 'Got a project, a role, or just want to talk shop? Drop a note below or reach me directly.',
-  successHeading: 'Message sent — nice.',
-  successBody: "I'll get back to you soon.",
-  errorBody: 'Something went wrong sending that — try again, or email me directly.',
+  errorBody: 'Something went wrong sending that. Try again, or email me directly.',
 };

@@ -113,7 +113,7 @@ function ScaledEmbed({
             <span>
               <span className="block font-sans text-lg font-extrabold text-white">▶ Play {title}</span>
               <span className="mt-1 block font-mono text-xs text-white/70">
-                loads the game — it has sound
+                loads the game, and it has sound
               </span>
             </span>
           </button>
@@ -181,7 +181,7 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
             {project.demo.naturalWidth && project.demo.naturalHeight ? (
               <ScaledEmbed
                 src={project.demo.src}
-                title={`${project.title} — playable`}
+                title={`${project.title} playable demo`}
                 width={project.demo.naturalWidth}
                 height={project.demo.naturalHeight}
                 inset={project.demo.embedInset}
