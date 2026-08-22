@@ -30,14 +30,21 @@ export default function About() {
               className="font-sans"
             />
           </h1>
-          {ABOUT.bio.map((paragraph, i) => (
-            <p
-              key={i}
-              className={`max-w-[640px] font-sans text-[17px] leading-[1.7] text-white ${i === 0 ? 'mb-4' : ''}`}
-            >
-              {paragraph}
-            </p>
-          ))}
+          {/* On a card so the animated background reads behind the bio rather
+              than through it. Translucent plus a blur, matching the hero. */}
+          <SpotlightCard
+            className="max-w-[640px] rounded-3xl border border-border bg-surface/85 p-[clamp(20px,3vw,32px)] backdrop-blur-md"
+            spotlightColor="rgba(111, 116, 232, 0.45)"
+          >
+            {ABOUT.bio.map((paragraph, i) => (
+              <p
+                key={i}
+                className={`font-sans text-[17px] leading-[1.7] text-white ${i === 0 ? 'mb-4' : ''}`}
+              >
+                {paragraph}
+              </p>
+            ))}
+          </SpotlightCard>
         </div>
       </section>
 
