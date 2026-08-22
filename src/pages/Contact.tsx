@@ -33,8 +33,10 @@ export default function Contact() {
   };
 
   if (status === 'success') {
+    // Padding scales with viewport height so this page fits on screen without
+    // scrolling — there is little enough on it that a scrollbar is just noise.
     return (
-      <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(70px,10vh,110px)]">
+      <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
         <div className="rounded-[20px] bg-panel p-8 text-center">
           <div className="flex justify-center">
             <StrokeText
@@ -58,7 +60,7 @@ export default function Contact() {
   }
 
   return (
-    <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] pb-[100px] pt-[clamp(70px,10vh,110px)]">
+    <section className="mx-auto max-w-[760px] px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
       {/* Kept inside an h1 so the page still has a heading in its outline —
           FoldText renders spans. */}
       <h1 className="mb-4">
@@ -73,9 +75,9 @@ export default function Contact() {
           className="font-sans"
         />
       </h1>
-      <p className="mb-12 font-sans text-[17px] leading-[1.55] text-white">{CONTACT.body}</p>
+      <p className="mb-7 font-sans text-[17px] leading-[1.55] text-white">{CONTACT.body}</p>
 
-      <div className="mb-12 flex flex-wrap gap-4">
+      <div className="mb-7 flex flex-wrap gap-4">
         {SOCIAL_LINKS.map((link) => (
           <a
             key={link.href}
