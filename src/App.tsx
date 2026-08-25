@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Projects from './pages/Projects';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import { PIXEL_PURPLE } from './lib/theme';
 
 export default function App() {
   return (
@@ -18,9 +19,7 @@ export default function App() {
           so the ripple-on-move effect still works over empty areas. */}
       <div className="fixed inset-0 z-0" aria-hidden>
         <PixelBlast
-          // Kept in step with --color-pixel, which the cards' spotlight sheen
-          // also uses so the two read as one accent.
-          color="#6f74e8"
+          color={PIXEL_PURPLE}
           variant="square"
           pixelSize={3}
           patternScale={5.5}

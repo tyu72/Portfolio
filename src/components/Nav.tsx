@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS, CONTACT_CTA, BRAND } from '../lib/content';
 import PillNav from './PillNav/PillNav';
+import { PIXEL_PURPLE } from '../lib/theme';
 
 export default function Nav() {
   const { pathname } = useLocation();
@@ -43,7 +44,7 @@ export default function Nav() {
             baseColor="var(--color-bg)"
             pillColor="var(--color-bg)"
             pillTextColor="#f2f4fb"
-            hoveredPillTextColor="#6f74e8"
+            hoveredPillTextColor={PIXEL_PURPLE}
           />
         </div>
       </div>

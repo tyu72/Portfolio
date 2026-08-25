@@ -28,10 +28,6 @@
   --color-panel: oklch(28% 0.02 260);
   --color-panel-ink: oklch(97% 0.005 260);
 
-  /* The background shader's pixel colour, shared with the spotlight sheen on
-     the cards so the two read as the same accent. */
-  --color-pixel: #6f74e8;
-
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }

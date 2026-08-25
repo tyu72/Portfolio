@@ -32,7 +32,7 @@ export const HERO_ROLES = ['PRODUCT MANAGER', 'GAME DESIGNER', 'BUILDER', 'PROBL
 export const HERO = {
   name: 'Tony Yu',
   tagline:
-    'CS + game design student who likes building things end to end, now figuring out how to turn "I made this" into "people actually want this."',
+    'CS + Game Design graduate who likes building things end to end, now figuring out how to turn "I made this" into "people actually want this."',
 };
 
 export type Tag = string;
@@ -54,7 +54,7 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
     status: { label: 'WEB APP · LIVE', accentClass: 'text-accent' },
     title: 'StrengthAI',
     description:
-      'A strength-training log that reads your own data and tells you when a lift has stalled, and why.',
+      'An AI-powered strength-training log that reads your own data and tells you when a lift has stalled, and why.',
     tags: ['React', 'Supabase', 'Claude API'],
     href: '/projects?project=strengthai',
   },
@@ -62,7 +62,7 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
     slug: 'bubblemage',
     status: { label: 'GAME · STEAM', accentClass: 'text-game' },
     title: 'BubbleMage',
-    description: 'A slime alchemy game built in Unity with a five-person team, headed to Steam.',
+    description: 'An open world fantasy game built in Unity with a five-person team, headed to Steam.',
     tags: ['Unity', 'C#', 'Team project'],
     href: '/projects?project=bubblemage',
   },
@@ -134,7 +134,7 @@ export const PROJECTS: ProjectDetail[] = [
     status: { label: 'GAME · STEAM', accentClass: 'text-game' },
     title: 'BubbleMage',
     description:
-      'A slime alchemy game built in Unity with a five-person team, on its way to Steam. My focus was gameplay systems and C# tooling, working alongside teammates on art, audio, and level design.',
+      'An open world fantasy game built in Unity with a five-person team, on its way to Steam. My focus was gameplay systems and C# tooling, working alongside teammates on art, audio, and level design.',
     tags: ['Unity', 'C#', 'Game design', 'Team project'],
     links: [{ label: 'View on Steam ↗', href: 'https://store.steampowered.com/app/4703500/Bubble_Mage/' }],
     // Served from public/ rather than imported: the clip is ~54 MB, and the

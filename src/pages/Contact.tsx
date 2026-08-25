@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { CONTACT, SOCIAL_LINKS } from '../lib/content';
 import FoldText from '../components/FoldText/FoldText';
 import StrokeText from '../components/StrokeText/StrokeText';
+import { PIXEL_PURPLE } from '../lib/theme';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -44,9 +45,9 @@ export default function Contact() {
             text="Talk to you soon!"
             stagger={0.09}
             strokeWidth={1.2}
-            // Stroke picks up the same purple as the background pixels and
-            // the card spotlights; the fill is the panel's own text colour.
-            strokeColor="#6f74e8"
+            // Stroke picks up the same purple as the background pixels; the
+            // fill is the panel's own text colour.
+            strokeColor={PIXEL_PURPLE}
             fillColor="#f2f4fb"
             fontSize={54}
             letterSpacing={-1}
