@@ -1,5 +1,7 @@
 // Generates the lanyard card's front and back faces, plus a web-sized About
-// headshot, from the source images in src/images/.
+// from the source images in src/images/.
+// (The About headshot this used to build moved to the carousel; see
+// scripts/build-about-carousel.mjs.)
 //
 // Face dimensions come from card.glb's texture atlas (1678x1677) and the UV
 // rects the Lanyard component composites into: the front face is the left half
@@ -149,15 +151,3 @@ for (const [file, size] of [
   await sharp(iconTile).resize(size, size).png().toFile(p(new URL(file, PUB)));
   console.log(`${file.padEnd(20)} ${size}x${size}`);
 }
-
-// ---------- about page headshot ----------
-const aboutOut = p(new URL('about-headshot.jpg', SRC));
-const meta = await sharp(p(new URL('about me image.jpg', SRC))).metadata();
-await sharp(p(new URL('about me image.jpg', SRC)))
-  .rotate() // honour EXIF orientation
-  // 3:4 portrait, matching the vertical frame the About page renders it in.
-  .resize({ width: 840, height: 1120, fit: 'cover', position: 'attention' })
-  .jpeg({ quality: 86 })
-  .toFile(aboutOut);
-
-console.log(`about-headshot.jpg 840x1120 (source ${meta.width}x${meta.height})`);
