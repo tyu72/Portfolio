@@ -1,9 +1,14 @@
-// Vendored from reactbits (DepthCarousel, TS + Tailwind build). The only
-// departure from upstream is below: this project builds with
-// verbatimModuleSyntax, which requires types to be imported as types.
+// Vendored from reactbits (DepthCarousel, TS + Tailwind build). Two departures
+// from upstream, both marked where they occur:
+//
+//   1. this project builds with verbatimModuleSyntax, so types are imported as
+//      types (immediately below);
+//   2. the first layout runs before paint rather than after (see the
+//      useLayoutEffect further down).
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -238,16 +243,27 @@ const DepthCarousel = ({
 
   const navigateBy = useCallback((step: number) => setFocus(focusRef.current + step, true), [setFocus]);
 
-  useEffect(() => {
+  // Departure from upstream: measures once, synchronously, before observing.
+  //
+  // Each card carries its unscaled cardWidth/cardHeight as an inline size, and
+  // only shrinks once this scale reaches it. Upstream waits for the
+  // ResizeObserver, which does not deliver until after the browser has painted,
+  // so the first frame showed every card stacked at full size -- on a card
+  // asking for 700x933 in a 240px column, a very visible flash on load.
+  // useLayoutEffect runs after the DOM is in place but before paint, so the
+  // first frame drawn is already the right size. The observer still handles
+  // every resize after that.
+  useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    const ro = new ResizeObserver(entries => {
-      const w = entries[0].contentRect.width;
+    const measure = (w: number) => {
       const cfg = cfgRef.current;
       const needed = cfg.cardWidth + Math.abs(cfg.spread) * 2 + 120;
       scaleRef.current = clamp(w / needed, 0.4, 1);
       layout(posRef.current);
-    });
+    };
+    measure(root.getBoundingClientRect().width);
+    const ro = new ResizeObserver(entries => measure(entries[0].contentRect.width));
     ro.observe(root);
     return () => ro.disconnect();
   }, [layout]);
