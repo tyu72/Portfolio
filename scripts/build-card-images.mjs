@@ -1,12 +1,5 @@
-// Generates the lanyard card's front and back faces, plus a web-sized About
-// from the source images in src/images/.
-// (The About headshot this used to build moved to the carousel; see
-// scripts/build-about-carousel.mjs.)
-//
-// Face dimensions come from card.glb's texture atlas (1678x1677) and the UV
-// rects the Lanyard component composites into: the front face is the left half
-// at 0.755 height, the back the right half at 0.757. Matching those exactly
-// means the images fill each face with no cropping.
+// Generates the lanyard card faces, strap tile and favicons from src/images/.
+// Face sizes come from card.glb's atlas (1678x1677) and its UV rects.
 //
 // Run: node scripts/build-card-images.mjs
 import sharp from 'sharp';
@@ -29,10 +22,7 @@ const INK = '#1a1d29';
 const BORDER = 38; // white frame around the photo, in face pixels
 
 // ---------- front: photo in a white frame ----------
-// lanyard-photo.jpg is the decoded copy of "lanyard image.HEIC" — sharp cannot
-// read HEIC, so that conversion is done once with Windows' imaging stack:
-//   Add-Type -AssemblyName PresentationCore, WindowsBase
-//   [System.Windows.Media.Imaging.BitmapFrame]::Create($uri,'None','OnLoad')
+// lanyard-photo.jpg is the decoded HEIC; sharp cannot read HEIC.
 const photo = await sharp(p(new URL('lanyard-photo.jpg', SRC)))
   .resize({
     width: FACE_W - BORDER * 2,
@@ -46,8 +36,7 @@ await sharp({
   create: { width: FACE_W, height: FRONT_H, channels: 4, background: '#ffffff' }
 })
   .composite([{ input: photo, left: BORDER, top: BORDER }])
-  // JPEG, not PNG: this face is a photograph and needs no transparency —
-  // as a PNG it weighed 2 MB, which dominated the whole bundle.
+  // JPEG, not PNG: as a PNG this photograph weighed 2 MB.
   .jpeg({ quality: 88 })
   .toFile(p(new URL('card-front.jpg', OUT)));
 
@@ -98,14 +87,11 @@ await sharp({
 console.log(`card-back.png   ${FACE_W}x${BACK_H}  (${LOGOS.join(', ')})`);
 
 // ---------- lanyard strap ----------
-// One tile of the repeating strap print. The tile is 2:1, and the component
-// repeats it along the strap at a fixed world length so the print keeps its
-// proportions whether the strap hangs at rest or is pulled taut.
+// One tile of the print, 2:1, repeated at a fixed world length.
 const STRAP_W = 512;
 const STRAP_H = 256;
 
-// Light strap on a dark page. A near-black strap measured 1.35:1 against the
-// background and was effectively invisible; inverting it reads at 11.6:1.
+// Light on dark: a near-black strap measured 1.35:1 and was invisible.
 const STRAP_BG = '#e7e9f2';
 const STRAP_FG = '#15161c';
 
@@ -125,9 +111,7 @@ await sharp(
 console.log(`strap-ty.png    ${STRAP_W}x${STRAP_H}`);
 
 // ---------- favicon ----------
-// A TY monogram, black on the site's purple. Rendered to PNG rather than
-// shipped as SVG so the glyphs are baked in and cannot shift with whatever
-// fonts a browser happens to have when it draws the tab icon.
+// A TY monogram, baked to PNG so glyphs cannot shift with browser fonts.
 const PUB = new URL('../public/', import.meta.url);
 const ICON_RES = 512;
 const ICON_BG = '#6f74e8'; // the same purple as the pixels and card spotlights

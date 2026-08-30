@@ -15,19 +15,7 @@ export type CardDeckProps = {
   skewAmount?: number;
 };
 
-/**
- * A stacked deck of cards, in the vein of reactbits' CardSwap, but advanced by
- * the reader rather than on a timer.
- *
- * The timer is the reason the original does not suit this content: it swaps the
- * front card every few seconds, which would pull a playing video out from under
- * someone mid-watch, and it offers no way to ask for a specific card. Here the
- * geometry is the same — each card behind is offset right, up and back, and
- * sheared — while the order changes only on click or keypress.
- *
- * The front card is left unsheared so its text stays straight and its video
- * controls stay square to the pointer.
- */
+/** A stacked deck advanced by the reader, not a timer. */
 export default function CardDeck({
   labels,
   activeIndex,
@@ -40,9 +28,7 @@ export default function CardDeck({
   const total = labels.length;
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  // Narrow screens get tighter offsets, or the stack's reserved gutter eats the
-  // card. Tracked on resize rather than by a media query in CSS because the
-  // offsets are applied as inline transforms.
+  // Tighter offsets on narrow screens, or the gutter eats the card.
   const [compact, setCompact] = useState(
     () => typeof window !== 'undefined' && window.innerWidth < 640
   );
@@ -56,9 +42,9 @@ export default function CardDeck({
   const stepX = compact ? cardDistance / 2 : cardDistance;
   const stepY = compact ? verticalDistance / 2 : verticalDistance;
 
-  // Only a few cards peek out; deeper ones sit at the same place and fade away.
-  // Without this the reserved gutter would grow with every project added.
-  const maxDepth = Math.min(total - 1, compact ? 2 : 3);
+
+  // Capped: the gutter is maxDepth steps wide and comes out of the card.
+  const maxDepth = Math.min(total - 1, compact ? 3 : 4);
 
   const go = (next: number) => onChange((next + total) % total);
 
@@ -127,14 +113,9 @@ export default function CardDeck({
         </div>
       </div>
 
-      {/* Every card occupies the same grid cell, so the deck is as tall as its
-          tallest card and the stack overlaps rather than flowing. The padding
-          leaves room for the offset cards to peek out without being clipped. */}
+      {/* One shared grid cell, so cards overlap; padding leaves room to peek. */}
       <div className="[perspective:1400px]" style={{ paddingRight: stepX * maxDepth, paddingTop: stepY * maxDepth }}>
-        {/* minmax(0,1fr) so the column is sized by the deck, not by its cards.
-            A card holding an element with an explicit pixel width would
-            otherwise widen the column, which widens the card, which grows that
-            element again — a feedback loop rather than a layout. */}
+        {/* minmax(0,1fr): a fixed-width child would otherwise widen the column. */}
         <div className="grid w-full grid-cols-[minmax(0,1fr)] [transform-style:preserve-3d]">
           {labels.map((label, i) => {
             // Distance back in the stack: 0 is the front card.
@@ -159,9 +140,11 @@ export default function CardDeck({
                 }}
                 className={isActive ? '' : beyondStack ? 'pointer-events-none' : 'cursor-pointer'}
               >
-                {/* Cards behind are decoration: clicks promote them rather than
-                    landing on a link, and they are out of the tab order. */}
-                <div className={isActive ? '' : 'pointer-events-none select-none'} inert={!isActive || undefined}>
+                {/* Decoration: clicks promote them, and they are out of the tab order. */}
+                <div
+                  className={isActive ? '' : 'pointer-events-none select-none'}
+                  inert={!isActive || undefined}
+                >
                   {renderCard(i, isActive)}
                 </div>
               </div>

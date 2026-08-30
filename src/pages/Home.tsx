@@ -14,31 +14,10 @@ import { HERO, FEATURED_PROJECTS } from '../lib/content';
 export default function Home() {
   return (
     <div className="relative">
-      {/* Draggable lanyard. Sits above page content (z-30) so the card covers
-          text as it swings, but below the sticky nav (z-50).
-
-          The canvas spans the full page width and 900px down so the card is
-          never clipped by its own container — the rope is the only thing that
-          limits how far it swings. Lanyard disables pointer events on the
-          canvas except when the pointer is over the card, so everything
-          underneath stays clickable.
-
-          anchorRightPx hangs the rig 333px from the right edge: the midpoint
-          of the Home (372px) and Projects (293px) nav links, measured on the
-          rendered page. */}
+      {/* Lanyard: z-30, above the page but below the sticky nav. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-30 hidden h-[900px] lg:block">
         <div className="pointer-events-none h-full w-full">
-          {/* cardHeightPx pins the card's rendered height, so resizing the
-              canvas no longer changes how big it looks — the camera distance is
-              solved for instead. */}
-          {/* ropeSegmentLength keeps the card clear of the "View all" link.
-              The card's bottom rests at world y = 1.425 - 3 * length, and at
-              255px per 2.25 units the canvas shows 113.3px per unit from a top
-              edge of y=3.971. At 0.77 the card bottom lands ~550px down the
-              canvas, about 24px above the link at 574px. */}
-          {/* Gravity sets how fast the card falls in and how heavy it feels to
-              drag. Lowered from -40 to slow the entrance; the rope holds the
-              same resting position either way. */}
+          {/* Fixed card height, rope clears "View all", low gravity slows the drop. */}
           <Lanyard
             gravity={[0, -14, 0]}
             cardHeightPx={255}
@@ -53,9 +32,7 @@ export default function Home() {
       </div>
 
       <section className="relative mx-auto grid max-w-[1140px] gap-10 overflow-hidden px-[clamp(24px,6vw,80px)] pb-[clamp(70px,10vh,130px)] pt-[clamp(90px,15vh,170px)] lg:grid-cols-[1fr_360px]">
-        {/* The intro sits on a card so the animated background reads behind it
-            rather than through the text. Translucent plus a blur, so the
-            pattern is still visible without competing with the copy. */}
+        {/* On a card, so the background reads behind the text. */}
         <SpotlightCard
           className="z-10 self-start rounded-3xl border border-border bg-surface/85 p-[clamp(24px,4vw,44px)] backdrop-blur-md"
           spotlightColor="rgba(111, 116, 232, 0.45)"

@@ -1,27 +1,8 @@
-// Builds the About page carousel images from the originals in
-// src/imported about images and gifs/.
+// Builds the About carousel images from the phone captures in
+// src/imported about images and gifs/ (~220MB) down to 480x640.
+// GIFs become animated WebP; tiled HEIC is read from .jpg copies beside it.
 //
-// The originals are phone captures: three GIFs of 26-32MB each and stills up
-// to 48 megapixels, ~75MB in total, all destined for a card that renders at
-// 240x320. Two things fix that. Everything is cropped to the card's 3:4 here
-// rather than by the browser, so no pixel is shipped only to be cropped away;
-// and the GIFs become animated WebP, which the carousel treats identically
-// since it renders plain <img> tags.
-//
-// Two of the sources arrived as HEIC and are read here from .jpg copies
-// sitting beside them. sharp cannot open those particular files: they are
-// tiled, and the 48 tile references trip libheif's 16-reference security
-// limit. Windows' own imaging stack reads them, so the copies were made with:
-//
-//   Add-Type -AssemblyName PresentationCore
-//   $s = [IO.File]::OpenRead($heic)
-//   $dec = [Windows.Media.Imaging.BitmapDecoder]::Create($s,'PreservePixelFormat','OnLoad')
-//   $enc = New-Object Windows.Media.Imaging.JpegBitmapEncoder
-//   $enc.QualityLevel = 95
-//   $enc.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($dec.Frames[0]))
-//   $out = [IO.File]::Open($jpg,'Create'); $enc.Save($out); $out.Close(); $s.Close()
-//
-// Run with: node scripts/build-about-carousel.mjs
+// Run: node scripts/build-about-carousel.mjs
 
 import sharp from 'sharp';
 import { execFileSync } from 'node:child_process';
@@ -34,28 +15,15 @@ const IMPORTED = new URL('../src/imported about images and gifs/', import.meta.u
 const SRC = new URL('../src/images/', import.meta.url);
 const OUT = new URL('../src/images/about-carousel/', import.meta.url);
 
-// Twice the 240x320 the card renders at, so the images stay sharp on a
-// high-density display without paying for more than that.
+// 2x the 280x373 the card renders at, for high-density displays.
 const W = 480;
 const H = 640;
 
 mkdirSync(p(OUT), { recursive: true });
 
 /**
- * Order is the order the carousel shows them; the Santa Cruz photo leads
- * because it is the one the page showed before this was a carousel.
- *
- * `zoom` narrows the frame to that fraction of its width before the 3:4 crop,
- * for photos where the subject sits to one side and a straight centred crop
- * would keep someone else in shot. `focusX` and `focusY` then aim that window:
- * 1 is flush right, 0 flush left, and the same top to bottom. Together they
- * work like a camera -- zoom sets how much is in frame, focus sets where it
- * points.
- *
- * `fps` re-times an animated source and hands it to ffmpeg instead of sharp,
- * which has no way to drop frames. Phone captures run at 50fps, which nothing
- * at this size needs: the gym clip is 340 frames, and sharp emitted 9.6MB for
- * it where 15fps lands at 2.1MB and looks no different in a 280px card.
+ * `zoom` narrows the frame before the 3:4 crop; `focusX`/`focusY` aim it.
+ * `fps` re-times an animated source through ffmpeg, which sharp cannot do.
  */
 const ITEMS = [
   { src: new URL('about me image.jpg', SRC), name: 'santa-cruz.jpg' },
@@ -75,22 +43,16 @@ let before = 0;
 let after = 0;
 
 for (const { src, name, animated = false, zoom, focusX = 1, focusY = 0.5, fps } of ITEMS) {
-  // `animated` reads every frame rather than just the first. sharp tracks the
-  // frame height itself from there, so the resize below applies per frame
-  // instead of squashing the whole strip.
+  // `animated` reads every frame, so the resize applies per frame.
   const input = sharp(p(src), { animated, limitInputPixels: false });
   const meta = await input.metadata();
   const frames = meta.pages ?? 1;
 
-  // Phone cameras record which way up they were held in an EXIF flag rather
-  // than rotating the pixels. sharp honours that flag only when asked, so
-  // without this a photo shot in one orientation comes out on its side. It is
-  // a no-op for anything already upright.
+  // EXIF orientation, sharp path only; GIFs carry no flag.
   let pipeline = input.rotate();
 
   if (zoom) {
-    // extract() runs on the rotated pixels, so measure them the same way
-    // rather than trusting the stored width and height.
+    // Measured after rotating, since extract() runs on the rotated pixels.
     const { info } = await sharp(p(src), { limitInputPixels: false })
       .rotate()
       .toBuffer({ resolveWithObject: true });
@@ -108,9 +70,7 @@ for (const { src, name, animated = false, zoom, focusX = 1, focusY = 0.5, fps } 
   let written;
 
   if (fps) {
-    // Crop to the card's 3:4 here too, so ffmpeg is not scaling away pixels it
-    // just spent time encoding. Whichever side is proportionally long is the
-    // one that gives.
+    // Crop here too, so ffmpeg is not scaling away pixels it just encoded.
     const sw = meta.width;
     const sh = meta.pageHeight ?? meta.height;
     const cw = sw / sh < W / H ? sw : Math.round((sh * W) / H);

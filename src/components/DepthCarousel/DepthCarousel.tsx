@@ -1,10 +1,5 @@
-// Vendored from reactbits (DepthCarousel, TS + Tailwind build). Two departures
-// from upstream, both marked where they occur:
-//
-//   1. this project builds with verbatimModuleSyntax, so types are imported as
-//      types (immediately below);
-//   2. the first layout runs before paint rather than after (see the
-//      useLayoutEffect further down).
+// Vendored from reactbits. Two departures: type-only imports, and a first
+// layout that runs before paint.
 import {
   useCallback,
   useEffect,
@@ -243,16 +238,7 @@ const DepthCarousel = ({
 
   const navigateBy = useCallback((step: number) => setFocus(focusRef.current + step, true), [setFocus]);
 
-  // Departure from upstream: measures once, synchronously, before observing.
-  //
-  // Each card carries its unscaled cardWidth/cardHeight as an inline size, and
-  // only shrinks once this scale reaches it. Upstream waits for the
-  // ResizeObserver, which does not deliver until after the browser has painted,
-  // so the first frame showed every card stacked at full size -- on a card
-  // asking for 700x933 in a 240px column, a very visible flash on load.
-  // useLayoutEffect runs after the DOM is in place but before paint, so the
-  // first frame drawn is already the right size. The observer still handles
-  // every resize after that.
+  // Departure: measures synchronously, or the first frame paints unscaled.
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;

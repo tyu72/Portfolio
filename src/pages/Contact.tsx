@@ -34,19 +34,14 @@ export default function Contact() {
   };
 
   if (status === 'success') {
-    // Padding scales with viewport height so this page fits on screen without
-    // scrolling — there is little enough on it that a scrollbar is just noise.
+    // Viewport-scaled padding: fits without scrolling.
     return (
       <section className="mx-auto flex w-full max-w-[760px] flex-1 flex-col justify-center px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
-        {/* The stroke line says it on its own — the follow-up sentence
-            underneath repeated it almost word for word. */}
         <div className="flex justify-center rounded-[20px] bg-panel p-8">
           <StrokeText
             text="Talk to you soon!"
             stagger={0.09}
             strokeWidth={1.2}
-            // Stroke picks up the same purple as the background pixels; the
-            // fill is the panel's own text colour.
             strokeColor={PIXEL_PURPLE}
             fillColor="#f2f4fb"
             fontSize={54}
@@ -61,8 +56,7 @@ export default function Contact() {
 
   return (
     <section className="mx-auto flex w-full max-w-[760px] flex-1 flex-col justify-center px-[clamp(24px,6vw,80px)] py-[clamp(16px,3vh,56px)]">
-      {/* Kept inside an h1 so the page still has a heading in its outline —
-          FoldText renders spans. */}
+      {/* h1 for the outline; FoldText renders spans. */}
       <h1 className="mb-4">
         <FoldText
           text={CONTACT.heading}

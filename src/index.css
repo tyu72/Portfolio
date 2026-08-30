@@ -2,9 +2,7 @@
 
 @import "tailwindcss" source(none);
 
-/* The site is dark only — this is the palette, not an override of a light one.
-   Every Tailwind colour utility resolves through these custom properties, so
-   the whole site re-themes from here without touching a class name. */
+/* Dark-only palette; every colour utility resolves through these. */
 @theme {
   --color-bg: oklch(17% 0.014 260);
   --color-surface: oklch(21% 0.016 260);
@@ -16,15 +14,13 @@
   --color-border-soft: oklch(38% 0.018 260);
   --color-pill: oklch(28% 0.018 260);
 
-  /* Lifted so they hold contrast against the dark page. */
+  /* Lifted for contrast on dark. */
   --color-accent: oklch(74% 0.13 260);
   --color-accent-deep: oklch(82% 0.12 260);
   --color-live: oklch(78% 0.17 150);
   --color-game: oklch(75% 0.14 45);
 
-  /* Inverted panels — the resume banner and the contact success state. Paired
-     so the panel and its text are chosen together rather than assuming the
-     page's ink will contrast with them. */
+  /* Inverted panels: resume banner, contact success. */
   --color-panel: oklch(28% 0.02 260);
   --color-panel-ink: oklch(97% 0.005 260);
 
@@ -37,15 +33,13 @@
 
 @layer base {
   :root {
-    /* Dark-only site: tells the browser to render native UI — form controls,
-       scrollbars, the canvas behind the page — in its dark variant. */
+    /* Renders native form controls and scrollbars dark. */
     color-scheme: dark;
   }
 
   body {
     margin: 0;
-    /* The page background now lives here rather than on the app wrapper, so the
-       fixed PixelBlast layer behind the content has something to render over. */
+    /* Here, not the app wrapper, so the fixed shader has something to sit on. */
     background: var(--color-bg);
   }
 }

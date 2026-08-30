@@ -8,58 +8,36 @@ import { PROJECTS, type ProjectDetail } from '../lib/content';
 /** Width of the embed box's border, in px — kept out of the scale maths. */
 const BOX_BORDER = 1;
 
-/**
- * An embed that renders at its own fixed size and is scaled down to fit.
- *
- * Both games draw to a fixed Phaser canvas — 800x600 and 1500x1000 — and
- * neither scales itself, so dropping them into a narrower card would simply
- * crop the game. Rendering the iframe at its true size and applying a CSS
- * scale keeps the whole playfield visible, and the game still believes it has
- * its full canvas, so input and layout behave normally.
- */
+/** Shared by a live element and its stand-in, so heights cannot drift. */
+const LIVE_EMBED_HEIGHT = 'h-[clamp(560px,78vh,900px)]';
+const PREVIEW_TILE = 'block h-[200px] w-full rounded-2xl border border-border-soft';
+
+/** Rendered at the game's own canvas size and scaled down to fit. */
 function ScaledEmbed({
   src,
   title,
   width,
   height,
-  inset = 0,
-  contentFraction = 1
+  inset = 0
 }: {
   src: string;
   title: string;
   width: number;
   height: number;
   inset?: number;
-  contentFraction?: number;
 }) {
   const outer = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const [scale, setScale] = useState(1);
-  // Click to start. These games begin their menu music as soon as they load, so
-  // auto-mounting the frame meant audio started on its own and kept going while
-  // you read the rest of the page. Stopping unmounts the frame, which is what
-  // actually silences it — there is no way to mute across origins.
+  // Click to start; unmounting the frame is the only cross-origin mute.
   const [running, setRunning] = useState(false);
 
   useLayoutEffect(() => {
     const el = outer.current;
     if (!el) return;
 
-    // Measure immediately as well as observing. ResizeObserver only delivers
-    // as part of the rendering lifecycle, so relying on it alone leaves the
-    // embed at scale 1 — full size — until something else forces a frame. The
-    // synchronous read settles it at mount.
-    //
-    // clientWidth, not getBoundingClientRect: the card sits inside the deck's
-    // 3D-transformed stack, so the bounding rect reports visually transformed
-    // pixels — measurably smaller than the element's real layout width. Scaling
-    // the frame by that shrunken figure left the game short of its box, which
-    // is what showed up as a dead bar down one side. clientWidth is layout
-    // pixels and ignores ancestor transforms.
-    // Less the box's border: it is border-box, so its content area is 2px
-    // narrower than its width. Scaling to the full width made the frame overhang
-    // the right edge by those 2px while sitting flush left — one border looked
-    // thicker than the other.
+    // clientWidth, not the rect: the deck's 3D transform shrinks the rect.
+    // Measured up front as well, or it stays unscaled until a resize.
     const measure = () => setScale((el.clientWidth - BOX_BORDER * 2) / (width + inset * 2));
     measure();
 
@@ -70,37 +48,25 @@ function ScaledEmbed({
       observer.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [width, inset, contentFraction]);
+  }, [width, inset]);
 
   return (
     <div ref={outer} className="w-full">
-      {/* The box is narrowed to the game's own width and centred, rather than
-          the game being stretched to fill the card. Whatever margin the page
-          carries beside its canvas falls outside the box and is clipped. */}
+      {/* Full width: no fractional centring to round unevenly. */}
       <div
-        className="relative mx-auto max-w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
-        style={{
-          // Full width when the frame fills it, so there is no fractional
-          // centring for the browser to round unevenly between the two borders.
-          width:
-            contentFraction === 1
-              ? '100%'
-              : (width + inset * 2) * scale * contentFraction + BOX_BORDER * 2,
-          height: (height + inset * 2) * scale + BOX_BORDER * 2
-        }}
+        className="relative w-full overflow-hidden rounded-2xl border border-border-soft bg-black"
+        style={{ height: (height + inset * 2) * scale + BOX_BORDER * 2 }}
       >
         {running ? (
           <iframe
             ref={frame}
             src={src}
             title={title}
-            // Sized to include the page's own margin on both sides, so its
-            // content fits without the page scrolling.
+            // Includes the page's own margin, so nothing scrolls.
             width={width + inset * 2}
             height={height + inset * 2}
             scrolling="no"
-            // Keyboard focus is what makes it playable: the game only receives
-            // key events once the frame itself is focused.
+            // Key events need the frame itself focused.
             allow="autoplay; fullscreen; gamepad; keyboard-map"
             className="absolute left-0 top-0 border-0"
             style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}
@@ -134,11 +100,7 @@ function ScaledEmbed({
   );
 }
 
-/**
- * `isActive` gates the demo block. Only the front card mounts its iframe or
- * video, so opening the page no longer starts a live embed and a 52MB clip for
- * every project at once — they load as each card is brought forward.
- */
+/** `isActive` gates the costly parts of the demo, not the space they take. */
 function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: boolean }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-surface">
@@ -175,8 +137,8 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
         </div>
       </div>
 
-      {isActive &&
-        (project.demo.type === 'iframe' ? (
+      {/* On every card, so heights hold; stand-ins replace the costly parts. */}
+      {project.demo.type === 'iframe' ? (
           <div className="border-t border-border bg-surface-alt p-[clamp(20px,3vw,28px)]">
             <div className="mb-3 font-mono text-xs text-ink-softer">{project.demo.note}</div>
             {project.demo.naturalWidth && project.demo.naturalHeight ? (
@@ -186,21 +148,20 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
                 width={project.demo.naturalWidth}
                 height={project.demo.naturalHeight}
                 inset={project.demo.embedInset}
-                contentFraction={project.demo.embedContentFraction}
               />
             ) : (
-              // Dark backing, not white: the embedded app is dark, and white
-              // showed as a pale strip along the top edge before the app's own
-              // background painted over it.
-              <div className="overflow-hidden rounded-2xl border border-border-soft bg-black">
-                <iframe
-                  src={project.demo.src}
-                  // Taller than the old fixed 560px, and tied to the viewport
-                  // so a big screen gets a proportionally bigger demo.
-                  className="block h-[clamp(560px,78vh,900px)] w-full border-0"
-                  loading="lazy"
-                  title={`${project.title} live app`}
-                />
+              // Dark backing; height on the box so the empty version keeps it.
+              <div
+                className={`${LIVE_EMBED_HEIGHT} overflow-hidden rounded-2xl border border-border-soft bg-black`}
+              >
+                {isActive && (
+                  <iframe
+                    src={project.demo.src}
+                    className="block h-full w-full border-0"
+                    loading="lazy"
+                    title={`${project.title} live app`}
+                  />
+                )}
               </div>
             )}
             <div className="mt-2.5 font-sans text-[13px] text-ink-softer">
@@ -213,32 +174,39 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
         ) : (
           <div className="border-t border-border p-[clamp(20px,3vw,28px)]">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {project.demo.video && (
-                <video
-                  controls
-                  preload="metadata"
-                  poster={project.demo.video.poster}
-                  className="block h-[200px] w-full rounded-2xl border border-border-soft bg-black object-cover"
-                >
-                  <source src={project.demo.video.src} type="video/mp4" />
-                  Your browser can&apos;t play this clip.{' '}
-                  <a href={project.demo.video.src} className="text-accent">
-                    Download it instead ↓
-                  </a>
-                </video>
+              {project.demo.video &&
+                (isActive ? (
+                  <video
+                    controls
+                    preload="metadata"
+                    poster={project.demo.video.poster}
+                    className={`${PREVIEW_TILE} bg-black object-cover`}
+                  >
+                    <source src={project.demo.video.src} type="video/mp4" />
+                    Your browser can&apos;t play this clip.{' '}
+                    <a href={project.demo.video.src} className="text-accent">
+                      Download it instead ↓
+                    </a>
+                  </video>
+                ) : (
+                  <div className={`${PREVIEW_TILE} bg-black`} />
+                ))}
+              {project.demo.images.map((image) =>
+                isActive ? (
+                  <img
+                    key={image.src}
+                    src={image.src}
+                    alt={image.alt}
+                    loading="lazy"
+                    className={`${PREVIEW_TILE} object-cover`}
+                  />
+                ) : (
+                  <div key={image.src} className={`${PREVIEW_TILE} bg-black`} />
+                )
               )}
-              {project.demo.images.map((image) => (
-                <img
-                  key={image.src}
-                  src={image.src}
-                  alt={image.alt}
-                  loading="lazy"
-                  className="block h-[200px] w-full rounded-2xl border border-border-soft object-cover"
-                />
-              ))}
             </div>
           </div>
-        ))}
+        )}
     </div>
   );
 }
@@ -250,18 +218,13 @@ function indexForSlug(slug: string | null) {
 }
 
 export default function Projects() {
-  // The featured cards on the home page link to one specific project, so the
-  // deck has to open on that card rather than always on the first one.
+  // Home links to a specific project, so open on that card.
   const [searchParams] = useSearchParams();
   const requestedSlug = searchParams.get('project');
-  // Seeded from the URL, so the right card is already front on the first paint
-  // instead of flicking over from card one.
+  // Seeded from the URL, so the right card is front on first paint.
   const [active, setActive] = useState(() => indexForSlug(requestedSlug));
 
-  // Adjusted during render rather than in an effect: the slug only changes when
-  // you arrive from a different link, and reacting to it here avoids painting
-  // the old card first. Comparing against the last slug we acted on is what
-  // keeps this from fighting you as you flip through the deck by hand.
+  // Adjusted during render, so the old card is never painted first.
   const [appliedSlug, setAppliedSlug] = useState(requestedSlug);
   if (requestedSlug !== appliedSlug) {
     setAppliedSlug(requestedSlug);
@@ -271,8 +234,7 @@ export default function Projects() {
   return (
     <div>
       <section className="mx-auto max-w-[1100px] px-[clamp(24px,6vw,80px)] pb-10 pt-[clamp(70px,10vh,110px)]">
-        {/* Kept inside an h1 so the page still has a heading in its outline —
-            FoldText renders spans. */}
+        {/* h1 for the outline; FoldText renders spans. */}
         <h1 className="mb-4">
           <FoldText
             text="Projects"

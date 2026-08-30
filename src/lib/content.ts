@@ -20,7 +20,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 export const FOOTER = {
   copyright: '© 2026 Tony Yu',
   links: [
-    { label: 'GitHub', href: 'https://github.com/tyu72' },
+    { label: 'GitHub', href: 'https://github.com/yutonydev' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/yutony03/' },
     { label: 'Instagram', href: 'https://instagram.com/yu.tonyy' },
     { label: 'Email', href: 'mailto:yutony115@gmail.com' },
@@ -63,7 +63,7 @@ export const FEATURED_PROJECTS: FeaturedProject[] = [
     status: { label: 'GAME · STEAM', accentClass: 'text-game' },
     title: 'BubbleMage',
     description: 'An open world fantasy game built in Unity with a five-person team, headed to Steam.',
-    tags: ['Unity', 'C#', 'Team project'],
+    tags: ['Unity', 'C#', 'Team Project'],
     href: '/projects?project=bubblemage',
   },
 ];
@@ -74,29 +74,11 @@ export type ProjectDemo =
       src: string;
       fallbackHref: string;
       note: string;
-      /**
-       * The embed's own fixed canvas size, when it has one. Both games render
-       * to a fixed Phaser canvas, so the embed is rendered at that size and
-       * scaled to fit the card — otherwise the game is simply cropped.
-       */
+      /** The embed's own canvas size; scaled to fit the card, or it crops. */
       naturalWidth?: number;
       naturalHeight?: number;
-      /**
-       * The embedded page's own body margin, in its pixels. The frame is made
-       * this much bigger and then shifted back by the same amount, so the
-       * margin is cropped off and the canvas fills the box exactly — otherwise
-       * the page overflows its frame, scrollbars appear, and the game's own
-       * centring pushes it off to one side.
-       */
+      /** The embedded page's body margin, cropped off so no scrollbars appear. */
       embedInset?: number;
-      /**
-       * Fraction of the frame's width the game's canvas actually occupies.
-       * Some pages render their canvas narrower than the frame, leaving dead
-       * space down one side; scaling by this fraction pushes that space past
-       * the edge, where it is clipped. 1 means the canvas fills the frame.
-       * Measured from the rendered page — it cannot be read across origins.
-       */
-      embedContentFraction?: number;
     }
   | { type: 'media'; video?: { src: string; poster?: string }; images: { src: string; alt: string }[] };
 
@@ -120,7 +102,7 @@ export const PROJECTS: ProjectDetail[] = [
     tags: ['React', 'Vite', 'Supabase', 'Claude API', 'PWA'],
     links: [
       { label: 'Try it live ↗', href: 'https://strength-ai.vercel.app' },
-      { label: 'View code ↗', href: 'https://github.com/tyu72/StrengthAI' },
+      { label: 'View code ↗', href: 'https://github.com/yutonydev/StrengthAI' },
     ],
     demo: {
       type: 'iframe',
@@ -135,10 +117,9 @@ export const PROJECTS: ProjectDetail[] = [
     title: 'BubbleMage',
     description:
       'An open world fantasy game built in Unity with a five-person team, on its way to Steam. My focus was gameplay systems and C# tooling, working alongside teammates on art, audio, and level design.',
-    tags: ['Unity', 'C#', 'Game design', 'Team project'],
+    tags: ['Unity', 'C#', 'Game Design', 'Team Project'],
     links: [{ label: 'View on Steam ↗', href: 'https://store.steampowered.com/app/4703500/Bubble_Mage/' }],
-    // Served from public/ rather than imported: the clip is ~54 MB, and the
-    // page only fetches it if someone presses play.
+    // From public/: ~54 MB, fetched only on play.
     demo: {
       type: 'media',
       video: { src: '/bubblemage-preview.mp4' },
@@ -151,15 +132,15 @@ export const PROJECTS: ProjectDetail[] = [
     title: 'Space Drift',
     description:
       'An arcade dodger built in Phaser: steer a ship through falling asteroids and grab fuel to trigger nitro, which makes you briefly immune, and stacks if you collect more while it is already running. Every 15 seconds the asteroids get faster and more numerous, so a run is a question of how long you can keep up. The sprites and backgrounds are hand-drawn.',
-    tags: ['Phaser', 'JavaScript', 'Game design', 'Solo project'],
+    tags: ['Phaser', 'JavaScript', 'Game Design', 'Solo Project'],
     links: [
-      { label: 'Play full screen ↗', href: 'https://tyu72.github.io/Space-Drift/' },
-      { label: 'View code ↗', href: 'https://github.com/tyu72/Space-Drift' },
+      { label: 'Play full screen ↗', href: 'https://yutonydev.github.io/Space-Drift/' },
+      { label: 'View code ↗', href: 'https://github.com/yutonydev/Space-Drift' },
     ],
     demo: {
       type: 'iframe',
-      src: 'https://tyu72.github.io/Space-Drift/',
-      fallbackHref: 'https://tyu72.github.io/Space-Drift/',
+      src: 'https://yutonydev.github.io/Space-Drift/',
+      fallbackHref: 'https://yutonydev.github.io/Space-Drift/',
       note: 'PLAY IT HERE: press play, then click the game to use the keyboard',
       naturalWidth: 800,
       naturalHeight: 600,
@@ -173,7 +154,7 @@ export const PROJECTS: ProjectDetail[] = [
     title: 'Typing Tutor Turbo',
     description:
       'A typing game built in Phaser with Michael Xi. Words stack up and you pick one with the arrow keys, then clear it letter by letter, but hollow letters are shielded and take several hits, shields regenerate while you work, and a letter you type can count toward other words on screen. Built to make drilling accuracy feel like an arcade run rather than a lesson.',
-    tags: ['Phaser', 'JavaScript', 'Game design', 'Two-person team'],
+    tags: ['Phaser', 'JavaScript', 'Game Design', 'Two-Person Team'],
     links: [
       { label: 'Play full screen ↗', href: 'https://xismichael.github.io/typingTutorTurbo/' },
       { label: 'View code ↗', href: 'https://github.com/xismichael/typingTutorTurbo' },
@@ -189,6 +170,31 @@ export const PROJECTS: ProjectDetail[] = [
       embedInset: 8,
     },
   },
+  {
+    slug: 'afterimage',
+    status: { label: 'PLAYABLE · BROWSER GAME', accentClass: 'text-live', dot: true },
+    title: 'Afterimage',
+    description:
+      "A 2D platformer in Unity about playing blind. You explore a level freely with no timer, then snap back to the spawn and record an eight second run with your character invisible. Only the replay counts: reach the goal there and the level clears. While you record, the level tells you where you are without showing you, so lamps stay lit as you pass them, the screen flashes green when you jump, and the edges glow red as you move. Bounce pads launch you a fixed height, acceleration pads double whatever speed you already carry, and spikes cost you time.",
+    tags: ['Unity', 'C#', 'Game Design', 'Rapid Prototype'],
+    links: [
+      { label: 'Play on itch.io ↗', href: 'https://yutony03.itch.io/afterimage' },
+      { label: 'View code ↗', href: 'https://github.com/yutonydev/Prototype-4' },
+    ],
+    demo: {
+      type: 'iframe',
+      // itch's embed page: framing the build host serves an anti-hotlink notice.
+      // The id is per upload, so re-uploading breaks this; the fallback covers it.
+      src: 'https://itch.io/embed-upload/19017111?color=0b0d12',
+      fallbackHref: 'https://yutony03.itch.io/afterimage',
+      note: 'PLAY IT HERE: press play, then click the game to use the keyboard',
+      naturalWidth: 1280,
+      // 720 canvas + Unity's 38px footer; 720 alone would halve it.
+      naturalHeight: 758,
+      // The template resets the body margin, so there is nothing to crop.
+      embedInset: 0,
+    },
+  },
 ];
 
 export const ABOUT = {
@@ -196,8 +202,7 @@ export const ABOUT = {
     "I'm a computer science and game design major who likes taking things from a blank file to something people can actually use. That's meant building web apps, writing gameplay systems in Unity, and lately spending more time thinking about why people click what they click than how the code works underneath.",
     "Right now I'm aiming toward product management. I like being close enough to the code to know what's actually hard to build, and close enough to the user to know what's actually worth building.",
   ],
-  // Served straight from public/, so the URL stays clean and stable rather
-  // than being content-hashed by the bundler.
+  // From public/, so the URL stays stable rather than content-hashed.
   resume: {
     heading: 'Resume',
     body: 'The full rundown, one PDF.',
@@ -211,12 +216,19 @@ export const SKILL_GROUPS: SkillGroup[] = [
   {
     label: 'BUILD',
     accentClass: 'text-accent',
-    items: ['React', 'JavaScript', 'Python', 'Supabase', 'Unity', 'C#'],
+    items: ['React', 'JavaScript', 'TypeScript', 'Python', 'SQL', 'APIs', 'Unity', 'C#', 'Git / GitHub'],
   },
   {
     label: 'SHAPE',
     accentClass: 'text-game',
-    items: ['Product thinking', 'User research', 'Prototyping', 'Game design', 'Team collaboration'],
+    items: [
+      'Product Thinking',
+      'User Research',
+      'Product Success',
+      'Prototyping',
+      'Game Design',
+      'Team Collaboration',
+    ],
   },
 ];
 
