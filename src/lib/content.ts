@@ -1,3 +1,7 @@
+import strengthaiResolverTricep from '../images/strengthai/resolver-tricep.webp';
+import strengthaiResolverShoulderPress from '../images/strengthai/resolver-shoulder-press.webp';
+import strengthaiCoach from '../images/strengthai/coach.webp';
+
 export type NavLink = { label: string; href: string };
 
 export const NAV_LINKS: NavLink[] = [
@@ -80,7 +84,13 @@ export type ProjectDemo =
       /** The embedded page's body margin, cropped off so no scrollbars appear. */
       embedInset?: number;
     }
-  | { type: 'media'; video?: { src: string; poster?: string }; images: { src: string; alt: string }[] };
+  | {
+      type: 'media';
+      /** 'phone' renders portrait captures in a row; 'wide' is the default. */
+      frame?: 'wide' | 'phone';
+      video?: { src: string; poster?: string };
+      images: { src: string; alt: string; caption?: string }[];
+    };
 
 export type ProjectDetail = {
   slug: string;
@@ -104,11 +114,27 @@ export const PROJECTS: ProjectDetail[] = [
       { label: 'Try it live ↗', href: 'https://strength-ai.vercel.app' },
       { label: 'View code ↗', href: 'https://github.com/yutonydev/StrengthAI' },
     ],
+    // Screenshots, not the live app: it redirects to a login form.
     demo: {
-      type: 'iframe',
-      src: 'https://strength-ai.vercel.app',
-      fallbackHref: 'https://strength-ai.vercel.app',
-      note: 'LIVE DEMO: free to sign up and try',
+      type: 'media',
+      frame: 'phone',
+      images: [
+        {
+          src: strengthaiResolverTricep,
+          alt: 'The exercise resolver turning "single arm cuffed tricep extension" into a Tricep Extension variant',
+          caption: 'Describe a lift how you would say it. No dropdowns, no exercise database.',
+        },
+        {
+          src: strengthaiResolverShoulderPress,
+          alt: 'The resolver classifying "plated loaded shoulder press machine" as a machine Shoulder Press variant',
+          caption: 'Each phrasing resolves to its own variant, so trend lines never merge.',
+        },
+        {
+          src: strengthaiCoach,
+          alt: 'The coach answering a question about reps in reserve using logged sets',
+          caption: 'The coach answers from sets you logged, and says what it cannot tell yet.',
+        },
+      ],
     },
   },
   {
@@ -216,7 +242,19 @@ export const SKILL_GROUPS: SkillGroup[] = [
   {
     label: 'BUILD',
     accentClass: 'text-accent',
-    items: ['React', 'JavaScript', 'TypeScript', 'Python', 'SQL', 'APIs', 'Unity', 'C#', 'Git / GitHub'],
+    items: [
+      'React',
+      'HTML/CSS',
+      'JavaScript',
+      'TypeScript',
+      'Python',
+      'SQL',
+      'APIs',
+      'Unity',
+      'C#',
+      'Shell Scripting',
+      'Git / GitHub',
+    ],
   },
   {
     label: 'SHAPE',

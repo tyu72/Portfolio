@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import FoldText from '../components/FoldText/FoldText';
 import TagPill from '../components/TagPill';
@@ -11,6 +12,117 @@ const BOX_BORDER = 1;
 /** Shared by a live element and its stand-in, so heights cannot drift. */
 const LIVE_EMBED_HEIGHT = 'h-[clamp(560px,78vh,900px)]';
 const PREVIEW_TILE = 'block h-[200px] w-full rounded-2xl border border-border-soft';
+/** Portrait captures keep their own aspect, so a row of them lines up exactly. */
+const PHONE_TILE = 'block aspect-[436/918] w-full rounded-2xl border border-border-soft';
+
+/** The overshoot in the curve is what makes it bounce rather than glide. */
+const TILE_HOVER =
+  'transition-transform duration-200 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] ' +
+  'group-hover:-translate-y-1 group-hover:scale-[1.03] ' +
+  'motion-reduce:transition-none motion-reduce:group-hover:translate-y-0 motion-reduce:group-hover:scale-100';
+
+type Shot = { src: string; alt: string; caption?: string };
+
+/**
+ * Portalled to the body: each card carries a translate3d, and a transformed
+ * ancestor is the containing block for position: fixed.
+ */
+function Lightbox({
+  shots,
+  index,
+  onIndex,
+  onClose
+}: {
+  shots: Shot[];
+  index: number;
+  onIndex: (next: number) => void;
+  onClose: () => void;
+}) {
+  const dialog = useRef<HTMLDivElement>(null);
+
+  const step = useCallback(
+    (by: number) => onIndex((index + by + shots.length) % shots.length),
+    [index, shots.length, onIndex]
+  );
+
+  useEffect(() => {
+    dialog.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') step(1);
+      if (e.key === 'ArrowLeft') step(-1);
+    };
+    document.addEventListener('keydown', onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose, step]);
+
+  const shot = shots[index];
+
+  return createPortal(
+    <div
+      ref={dialog}
+      role="dialog"
+      aria-modal="true"
+      aria-label={shot.alt}
+      tabIndex={-1}
+      onClick={onClose}
+      // Scrolls rather than shrinking: these are 918px tall, and height-fitting
+      // them caps the width below the 436px they were captured at.
+      className="fixed inset-0 z-[100] flex flex-col items-center gap-4 overflow-y-auto bg-black/85 p-[clamp(16px,4vw,48px)] backdrop-blur-sm outline-none"
+    >
+      <img
+        src={shot.src}
+        alt={shot.alt}
+        // Only the backdrop dismisses.
+        onClick={(e) => e.stopPropagation()}
+        // Native width, so the text is as sharp as the capture allows.
+        className="my-auto h-auto w-[min(436px,92vw)] max-w-full rounded-2xl border border-border-soft"
+      />
+      {shot.caption && (
+        <p className="max-w-[52ch] text-center font-sans text-sm text-ink-soft">{shot.caption}</p>
+      )}
+
+      {shots.length > 1 && (
+        <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            onClick={() => step(-1)}
+            aria-label="Previous screenshot"
+            className="rounded-full border border-border-soft px-4 py-2 font-sans text-sm font-bold text-ink transition-colors hover:border-accent hover:text-accent"
+          >
+            ←
+          </button>
+          <span className="font-mono text-xs text-ink-softer">
+            {index + 1} / {shots.length}
+          </span>
+          <button
+            type="button"
+            onClick={() => step(1)}
+            aria-label="Next screenshot"
+            className="rounded-full border border-border-soft px-4 py-2 font-sans text-sm font-bold text-ink transition-colors hover:border-accent hover:text-accent"
+          >
+            →
+          </button>
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close"
+        className="absolute right-[clamp(12px,3vw,28px)] top-[clamp(12px,3vw,28px)] rounded-full border border-border-soft px-3.5 py-1.5 font-sans text-sm font-bold text-ink transition-colors hover:border-accent hover:text-accent"
+      >
+        Esc ✕
+      </button>
+    </div>,
+    document.body
+  );
+}
 
 /** Rendered at the game's own canvas size and scaled down to fit. */
 function ScaledEmbed({
@@ -102,6 +214,11 @@ function ScaledEmbed({
 
 /** `isActive` gates the costly parts of the demo, not the space they take. */
 function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: boolean }) {
+  // Hoisted: the map callback below loses the narrowing to the media variant.
+  const phoneFrame = project.demo.type === 'media' && project.demo.frame === 'phone';
+  const shots = project.demo.type === 'media' ? project.demo.images : [];
+  const [zoomed, setZoomed] = useState<number | null>(null);
+
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-surface">
       <div className="p-[clamp(32px,5vw,48px)]">
@@ -173,7 +290,11 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
           </div>
         ) : (
           <div className="border-t border-border p-[clamp(20px,3vw,28px)]">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div
+              className={
+                phoneFrame ? 'grid grid-cols-3 gap-3' : 'grid grid-cols-1 gap-4 sm:grid-cols-2'
+              }
+            >
               {project.demo.video &&
                 (isActive ? (
                   <video
@@ -191,22 +312,42 @@ function ProjectCard({ project, isActive }: { project: ProjectDetail; isActive: 
                 ) : (
                   <div className={`${PREVIEW_TILE} bg-black`} />
                 ))}
-              {project.demo.images.map((image) =>
-                isActive ? (
-                  <img
-                    key={image.src}
-                    src={image.src}
-                    alt={image.alt}
-                    loading="lazy"
-                    className={`${PREVIEW_TILE} object-cover`}
-                  />
-                ) : (
-                  <div key={image.src} className={`${PREVIEW_TILE} bg-black`} />
-                )
-              )}
+              {project.demo.images.map((image, i) => {
+                const tile = phoneFrame ? PHONE_TILE : PREVIEW_TILE;
+                return (
+                  <figure key={image.src} className="m-0">
+                    {isActive ? (
+                      <button
+                        type="button"
+                        onClick={() => setZoomed(i)}
+                        aria-label={`Enlarge: ${image.alt}`}
+                        className="group block w-full cursor-zoom-in rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      >
+                        <img
+                          src={image.src}
+                          alt={image.alt}
+                          loading="lazy"
+                          className={`${tile} ${TILE_HOVER} object-cover`}
+                        />
+                      </button>
+                    ) : (
+                      <div className={`${tile} bg-black`} />
+                    )}
+                    {image.caption && (
+                      <figcaption className="mt-2 font-sans text-[12px] leading-[1.45] text-ink-softer">
+                        {image.caption}
+                      </figcaption>
+                    )}
+                  </figure>
+                );
+              })}
             </div>
           </div>
         )}
+
+      {zoomed !== null && (
+        <Lightbox shots={shots} index={zoomed} onIndex={setZoomed} onClose={() => setZoomed(null)} />
+      )}
     </div>
   );
 }

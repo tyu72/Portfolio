@@ -32,3 +32,7 @@ dist-ssr
 # GitHub's 100MB per-file limit. scripts/build-about-carousel.mjs turns them
 # into src/images/about-carousel/, and those generated files are what ship.
 src/imported about images and gifs/
+
+# StrengthAI screenshot originals; scripts/build-strengthai-shots.mjs turns
+# these into src/images/strengthai/, and those are what ship.
+src/imported strengthai/
